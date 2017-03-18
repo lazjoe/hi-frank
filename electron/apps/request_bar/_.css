@@ -1,0 +1,103 @@
+body {
+  overflow: hidden;
+  background-color: rgba(0,0,0,0.5);
+  margin: 0px;
+  /*display: block;*/
+  -webkit-app-region: drag;
+}
+
+#main {
+  width: 720px;
+  height: 90px;
+  /*position: fixed;*/
+  background-color: rgba(0,0,0,0);
+  margin: 0px;
+  /*border-radius:16px;*/
+  padding: 0px;
+  /*display: block;*/
+  -webkit-app-region: drag;
+}
+
+#frank-input {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  height: 44px;
+  background-color: rgba(111,111,111,0);
+/*  border-left: 1px solid #aaa;
+  border-top: 1px solid #aaa;
+*/
+  /*z-index: 9000;*/
+  /*opacity: 0.9*/
+  /*text-align: center;*/
+  /*display: block;*/
+  /*filter: blur(10px);*/
+}
+
+#prompt pre {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  width: 42px;
+  height: 100%;
+  font-size: 36px;
+  color: gray;
+  /*float:left;*/
+  margin-left: 15px;
+  margin-right: 8px;
+  margin-top:10px;
+  margin-bottom: 5px;
+  -webkit-user-select: none;
+  cursor: move;
+}
+
+#frank-input input{
+  position: absolute;
+  top: 0px;
+  left: 45px;
+  width: 640px;
+  height: 100%;
+  /*max-width: 600px;*/
+  background-color: rgba(255,255,255,0);
+  border-width: 0px;
+  outline: none;
+  /*border-radius:3px;*/
+  font-size: 21px;
+  color: lightgray;
+  caret-color: orange;
+  /*float:left;*/
+  margin-top: 6px;
+
+  -webkit-app-region: no-drag;
+}
+
+#splitter {
+  /*float:left;*/
+  position: absolute;
+  top: 44px;
+  left: 42px;
+  width: 640px;
+  height: 0px;
+
+  background-color: gray;/*rgba(111,111,111,1);*/
+}
+
+#frank-output {
+  position: absolute;
+  top: 46px;
+  left: 0px;
+  width: 100%;
+  height: 44px;
+  background-color: rgba(111,111,111,0);
+/*  border-left: 1px solid #aaa;
+  border-top: 1px solid #aaa;
+*/
+  /*z-index: 9000;*/
+  /*opacity: 0.9*/
+  /*text-align: center;*/
+  /*display: block;*/
+  /*filter: blur(10px);*/
+}
+
+::-webkit-input-placeholder { font-style: italic; font-size: 16px}

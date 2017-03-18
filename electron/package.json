@@ -1,0 +1,22 @@
+{
+  "name": "hi-frank",
+  "version": "0.0.1",
+  "description": "Human-like app framework for fracturing design.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": "https://github.com/lazjoe/hi-frank.git",
+  "keywords": [
+    "Electron",
+    "Fracturing Design"
+  ],
+  "author": "Yin Luo",
+  "license": "TBD",
+  "devDependencies": {
+    "electron": "^1.6.2",
+    "d3": "^4.4.1",
+    "jquery": "^3.2.0",
+    "bootstrap": "^3.3.7"
+  }
+}

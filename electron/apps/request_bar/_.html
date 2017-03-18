@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" type="text/css" href="_.css" />
+	</head>
+	<body>
+
+    <div id="main">
+      <div id='frank-input'>
+        <div id="prompt">
+          <span> <pre>&gt;</pre> </span>
+        </div>
+        <div>
+          <form id='inquire_frank' method='post' onsubmit='return false'>
+            <input id='input_to_frank' name='frank' required></textarea>
+          </form>
+        <div>
+      </div>
+      <div id="splitter">
+
+      </div>
+      <div id="frank-output">
+
+      </div>
+    </div>
+
+
+    <script>
+
+    // define submit behavior
+    var form = document.querySelector("#inquire_frank")
+    var input = document.querySelector("#input_to_frank")
+    const ipcRenderer = require('electron').ipcRenderer;
+
+    form.addEventListener("submit",function(ev) {
+
+        ev.preventDefault();
+        var req_str = input.value;
+        //console.log(req_str);
+
+        // ready for next input
+        input.value = "";
+        input.focus();
+
+        ipcRenderer.send('request_string',req_str)
+    }, false)
+
+        console.log(`${__dirname}/hellp`)
+
+    </script>
+	</body>
+</html>

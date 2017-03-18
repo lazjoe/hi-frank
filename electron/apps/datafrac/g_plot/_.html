@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+    	  <!-- <script type="text/javascript" src="../../../../lib/requirejs/require.js"></script> -->
+        <!--<script type="text/javascript" src="../../../lib/d3.js"></script>-->
+        <script type="text/javascript" src="../../../static/smoothers.js"></script>
+
+    	<script type="text/javascript" src="_.js"></script>
+        <link rel="stylesheet" type="text/css" href="_.css">
+	</head>
+	<body>
+        <div id="G_plot">
+            <div id="smoother control" style="margin-left:45px">
+                <form onchange="updateChart(scale.value, kernel.value, diff.value)">
+                    <label>Kernel Type:  <select name="kernel">
+                          <option value="Gaussian">Gaussian</option>
+                          <option value="Epanechnikov">Epanechnikov</option>
+                          <option value="Logistic">Logistic</option>
+                          <option value="Uniform">Uniform</option>
+                          <option value="Triangle">Triangle</option>
+                          <option value="Quartic">Quartic</option>
+                          <option value="Triweight">Triweight</option>
+                          <option value="Cosine">Cosine</option>
+                          <option value="Tricube">Tricube</option>
+                          <option value="Silverman">Silverman</option>
+                    </select></label>
+                    <label>Scale of kernel (G value):  <input type="number" min="0.00001" max="10" value="0.003" step="1" id="scale" /></label>
+                    <label>Cut-off ratio:  <input type="number" min="0" max="1" value="0.001" step="0.001" id="diff" /></label>
+                </form>
+            </div>
+        </div>
+
+    	<script type="text/javascript">
+    const d3 = require("d3")
+//require(["../../../../lib/d3/d3.js"], function(d3) {
+    const datafile = `${__dirname}/../data/test.csv`
+    console.log(datafile)
+	d3.csv('file://'+datafile,
+		function(error, data) {
+            // if error
+            console.log('error', error)
+            console.log('data',data)
+            var G_vs_Pressure = data.map(function(d){
+                return [+d.G, +d.pressure];
+            });
+
+            var G_vs_dpdG = data.map(function(d){
+                return [+d.G, +d.dpdG];
+            });
+
+            var G_vs_GdpdG = data.map(function(d){
+                return [+d.G, +d.GdpdG];
+            });
+
+            // Construct the smoothed data
+            // Smooth pressure
+            window.sm_pressure = ssci.smooth.kernel2()
+                                  .kernel("Gaussian")
+                                  .data(G_vs_Pressure)
+                                  .scale(0.003); // select the value from input control
+            sm_pressure();
+
+            window.sm_dpdG = ssci.smooth.kernel2()
+                                  .kernel("Gaussian")
+                                  .data(G_vs_dpdG)
+                                  .scale(0.003); // select the value from input control
+            sm_dpdG();
+
+            window.sm_GdpdG = ssci.smooth.kernel2()
+                                  .kernel("Gaussian")
+                                  .data(G_vs_GdpdG)
+                                  .scale(0.003); // select the value from input control
+            sm_GdpdG();
+
+            //var sm_result = sm_pressure.output();
+
+            //var der_result = derive_superpose(sm_result, 2)
+            //console.log('der_result', der_result);
+
+            //console.log(sm_pressure.output());
+            // Calculate derivatives
+            var sdata = [];
+            for (var i=0; i<sm_pressure.output().length; i++) {
+                sdata.push({G: sm_pressure.output()[i][0],
+                     pressure: sm_pressure.output()[i][1],
+                     dpdG: sm_dpdG.output()[i][1],
+                     GdpdG: sm_GdpdG.output()[i][1]});
+            }
+
+		    G_plot.render(data, sdata, "G_plot", d3);
+            // window.data = data
+		}
+	)
+    //window.d3 = d3
+//});
+
+    function updateChart(scale, kernel, diff){
+        //Convert to number
+        var scl = +scale;
+
+        var dff = +diff;
+
+        sm_pressure.scale(scl).kernel(kernel).diff(dff);
+        sm_dpdG.scale(scl).kernel(kernel).diff(dff);
+        sm_GdpdG.scale(scl).kernel(kernel).diff(dff);
+
+        sm_pressure();
+        sm_dpdG();
+        sm_GdpdG();
+
+        var sdata = [];
+        for (var i=0; i<sm_pressure.output().length; i++) {
+            sdata.push({G: sm_pressure.output()[i][0],
+                 pressure: sm_pressure.output()[i][1],
+                 dpdG: sm_dpdG.output()[i][1],
+                 GdpdG: sm_GdpdG.output()[i][1]});
+        }
+
+        G_plot.updateLines(sdata, [G_plot.PRESSURE, G_plot.DPDG, G_plot.GDPDG])
+    }
+
+    	</script>
+<!--       <webview id="foo" src="http://www.baidu.com/"
+      style="width:640px; height:480px"></webview> -->
+
+	</body>
+</html>
+
+
+<!--
+		<link rel="stylesheet" type="text/css" href="../css/G_plot.css">
+    	<div id="G_plot"></div>
+    	<script type="text/javascript">
+require(["../../../../lib/d3/d3.js"], function(d3) {
+	d3.csv("test.csv",
+		function(error, data) {
+			G_plot(data, "G_plot");
+		}
+	)
+});
+    	</script>
+ -->
+<!--
+     	<script type="text/javascript">
+if (!window.hasOwnProperty('d3')) {
+    require(["../../../../lib/d3/d3.js"], function(d3) {
+        console.log(
+            "d3 library is loaded and attached to window.");
+        window.d3 = d3;
+    });
+}
+    	</script>
+ -->
