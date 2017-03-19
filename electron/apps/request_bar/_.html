@@ -13,7 +13,7 @@
         </div>
         <div>
           <form id='inquire_frank' method='post' onsubmit='return false'>
-            <input id='input_to_frank' name='frank' required></textarea>
+            <input id='input_to_frank' name='frank' required></input>
           </form>
         <div>
       </div>
@@ -46,8 +46,12 @@
         ipcRenderer.send('request_string',req_str)
     }, false)
 
-        console.log(`${__dirname}/hellp`)
-
+    window.addEventListener("focus", function(ev) {
+      input.focus();
+    }) 
+    window.addEventListener("load", function(ev) {
+      input.focus();
+    }) 
     </script>
 	</body>
 </html>

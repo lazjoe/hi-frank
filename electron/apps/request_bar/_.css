@@ -1,6 +1,8 @@
 body {
   overflow: hidden;
-  background-color: rgba(0,0,0,0.5);
+  /*background-color: rgba(0,0,0,0.8);*/
+  background: -webkit-linear-gradient(left,rgba(200,200,200,1),rgba(255,255,255,0) 85%);
+
   margin: 0px;
   /*display: block;*/
   -webkit-app-region: drag;
@@ -8,7 +10,7 @@ body {
 
 #main {
   width: 720px;
-  height: 90px;
+  height: 60px;
   /*position: fixed;*/
   background-color: rgba(0,0,0,0);
   margin: 0px;
@@ -63,8 +65,11 @@ body {
   border-width: 0px;
   outline: none;
   /*border-radius:3px;*/
+
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
   font-size: 21px;
-  color: lightgray;
+  color: rgba(60,60,60,1);
+  /*color: -webkit-linear-gradient(left lightgray, black);*/
   caret-color: orange;
   /*float:left;*/
   margin-top: 6px;

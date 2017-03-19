@@ -20,40 +20,47 @@ const url = require('url')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
+let instantMessageWindow
 
 function createMainWindow () {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
+    mainWindow = createWindow('request_bar', {
     width: 720, height: 60, resizable: false,
     transparent: true, frame: false
   })
+  
+  // Create the browser window.
+  // mainWindow = new BrowserWindow({
+  //   width: 720, height: 60, resizable: false,
+  //   transparent: true, frame: false
+  // })
 
-  // and load the index.html of the app.
-  mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'apps/request_bar/_.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+  // // and load the index.html of the app.
+  // mainWindow.loadURL(url.format({
+  //   pathname: path.join(__dirname, 'apps/request_bar/_.html'),
+  //   protocol: 'file:',
+  //   slashes: true
+  // }))
 
-  // Open the DevTools.
-  //mainWindow.webContents.openDevTools( {mode:'detach'} )
+  // // Open the DevTools.
+  // //mainWindow.webContents.openDevTools( {mode:'detach'} )
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null
-  })
+  // // Emitted when the window is closed.
+  // mainWindow.on('closed', function () {
+  //   // Dereference the window object, usually you would store windows
+  //   // in an array if your app supports multi windows, this is the time
+  //   // when you should delete the corresponding element.
+  //   mainWindow = null
+  // })
+
 }
 
-function createWindow (view) {
+function createWindow (app, settings) {
   // Create the browser window.
-  newWindow = new BrowserWindow({width: 800, height: 600})
+  newWindow = new BrowserWindow(settings)
 
   // and load the index.html of the app.
   newWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'apps/' + view + '/_.html'),
+    pathname: path.join(__dirname, 'apps/' + app + '/_.html'),
     protocol: 'file:',
     slashes: true
   }))
@@ -77,6 +84,13 @@ function createWindow (view) {
 // Some APIs can only be used after this event occurs.
 app.on('ready', function () {
   createMainWindow();
+
+  // create window for Frank to reply with instant message
+  instantMessageWindow = createWindow('instant_message', {
+    width: 720, height: 60, resizable: false,
+    transparent: true, frame: false // use show:false here will cause weird behavior
+  })
+  instantMessageWindow.hide()
 
   globalShortcut.register('CommandOrControl+.', () => {
     mainWindow.smartToggle
@@ -109,35 +123,60 @@ const ipcMain = electron.ipcMain;
 const clipboard = electron.clipboard;
 
 ipcMain.on('request_string', function (event, arg) {
-  console.log("request received in main process: ", arg)
+  console.log('request received in main process: ', arg)
 
   var request = arg.toLowerCase();
 
-  if (arg == 'G_plot') {
+  if (request == 'g_plot') {
     createWindow('datafrac/g_plot')
-  } else if (arg == 'clipboard') {
+  } else if (request == 'clipboard') {
     createWindow('clipboard')
+  } else {
+    showInstantMessage(`${request}? I don't understand...`)
+    //instantMessageWindow.openDevTools({mode:'detach'})
   }
 
-  var formats = clipboard.availableFormats();
-  for(let i in formats) {
-    let format = formats[i]
 
-    if (format == 'text/plain') {
-      console.log('[text/plain] ', clipboard.readText())
-    } 
-    else if (format == 'text/html') {
-      console.log('[text/html] ', clipboard.readHTML())
-    }
-    else if (format == 'text/rtf') {
-      console.log('[text/rtf] ', clipboard.readRTF())
-    }
-    else if (format == 'image/png') {
-      console.log('[image/png]', clipboard.readImage())
-    }
-    else {
-      console.log('Unsupported format: ', format)
-    }
 
-  }
+  // var formats = clipboard.availableFormats();
+  // for(let i in formats) {
+  //   let format = formats[i]
+
+  //   if (format == 'text/plain') {
+  //     console.log('[text/plain] ', clipboard.readText())
+  //   } 
+  //   else if (format == 'text/html') {
+  //     console.log('[text/html] ', clipboard.readHTML())
+  //   }
+  //   else if (format == 'text/rtf') {
+  //     console.log('[text/rtf] ', clipboard.readRTF())
+  //   }
+  //   else if (format == 'image/png') {
+  //     console.log('[image/png]', clipboard.readImage())
+  //   }
+  //   else {
+  //     console.log('Unsupported format: ', format)
+  //   }
+
+  // }
 });
+
+function showInstantMessage(message) {
+  if (!instantMessageWindow) {
+    instantMessageWindow = createWindow('instant_message', {
+      width: 720, height: 60, resizable: false,
+      transparent: true, frame: false
+    })
+  }
+
+  var pos = mainWindow.getPosition()
+  instantMessageWindow.setPosition(pos[0], pos[1]-60)
+  instantMessageWindow.show()
+
+  //const {ipcMain} = require('electron');
+  instantMessageWindow.webContents.send('show_instant_message', message)
+
+  mainWindow.show() // set the focus back to main window
+}
+
+
