@@ -50,6 +50,7 @@ body {
   margin-right: 8px;
   margin-top:10px;
   margin-bottom: 5px;
+  user-select: none;
   -webkit-user-select: none;
   cursor: move;
 }
@@ -70,7 +71,7 @@ body {
   font-size: 21px;
   color: rgba(60,60,60,1);
   /*color: -webkit-linear-gradient(left lightgray, black);*/
-  caret-color: orange;
+  /*caret-color: orange;*/
   /*float:left;*/
   margin-top: 6px;
 

@@ -2,7 +2,75 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="../../lib/photon/css/photon.css" />
+    <link rel="stylesheet" href="../../static/photon/css/photon.css" />
+    <style>
+
+.icon {
+  font-size:36px; 
+  color:#666666
+}
+
+.format-available {
+  color:#666666
+}
+
+.format-unavailable {
+  color:darkgray
+}
+
+/*.list-group {
+  padding-top: 5px
+}*/
+
+.list-group li {
+  text-align: center
+}
+
+.list-group-header {
+  border-bottom: solid 1px lightgray;
+}
+
+.list-group li:hover {
+  background-color: lightgray
+}
+
+.format-available.selected {
+  color: darkorange
+}
+
+/*.clipboard-contents {
+  text-align: center;
+  top: 50%
+}*/
+
+.clipboard-display {
+  margin: 20px
+}
+
+.tooltip {
+  position: absolute;
+  opacity: 0;
+  background-color: lightyellow;
+  padding: 3px 12px 3px 12px;
+  text-align: center;
+  z-index: 99;
+  left: 75px;
+  transform: translateY(-50px);
+  color: #333333; 
+}
+
+.list-group li:hover .tooltip{
+  opacity: 1;
+  transition-delay:1s;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+}
+
+
+/*.tooltip.nav-refresh {
+  left: 60px
+}*/
+    </style>
     <script src="_.js"></script>
     
     <title>Clipboard</title>
@@ -17,10 +85,158 @@
       <!-- Your app's content goes inside .window-content -->
       <div class="window-content">
         <div class="pane-group">
-          <div class="pane-mini sidebar">...</div>
-          <div class="pane">...</div>
+
+         <!--  <nav class="nav-group">
+
+
+           <h5 class="nav-group-title">Formats</h5>
+            <span class="nav-group-item nav-text" style="color:darkgray">
+              <span class="icon icon-pencil nav-text" style="font-size:36px; color:darkgray"></span>
+              Text
+            </span>
+            <span class="nav-group-item nav-html" style="color:darkgray">
+              <span class="icon icon-newspaper nav-html" style="color:darkgray"></span>
+              HTML
+            </span>
+            <span class="nav-group-item nav-rtf" style="color:darkgray">
+              <span class="icon icon-doc-text nav-rtf" style="color:darkgray"></span>
+              RTF
+            </span>
+            <span class="nav-group-item nav-image" style="color:darkgray">
+              <span class="icon icon-picture nav-image" style="color:darkgray"></span>
+              Image
+            </span>
+          </nav>-->
+
+          <div class="pane-mini sidebar clipboard-formats">
+            <!--<span class="icon icon-pencil nav-text" style="font-size:36px; color:darkgray"></span>
+            <span class="icon icon-newspaper nav-html" style="font-size:36px; color:darkgray"></span>
+            <span class="icon icon-doc-text nav-rtf" style="font-size:36px; color:darkgray"></span>
+            <span class="icon icon-picture nav-image" style="font-size:36px; color:darkgray"></span>
+ -->
+            <ul class="list-group">
+              <li class="list-group-header">
+                <span class="icon icon-arrows-ccw nav-refresh"></span>
+                <div class="tooltip nav-refresh">Refresh from clipboard</div>
+              </li>
+
+              <li>
+                <span class="icon icon-pencil nav-text format"></span>
+                <div class="tooltip nav-text">Read as <em>text/plain</em> format</div>
+              </li >
+              <li>
+                <span class="icon icon-newspaper nav-html format"></span>
+                <div class="tooltip nav-html">Read as <em>text/html</em> format</div>
+              </li>
+              <li>
+                <span class="icon icon-doc-text nav-rtf format"></span>
+                <div class="tooltip nav-rtf">Read as <em>text/rtf</em> format</div>
+              </li>
+              <li>
+                <span class="icon icon-picture nav-image format"></span>
+                <div class="tooltip nav-image">Read as <em>image/png</em> format</div>
+              </li>
+            </ul>
+          </div>
+          <div class="pane clipboard-contents">
+            <div class="clipboard-display"></div>
+          </div>
         </div>
       </div>
     </div>
+    <script>
+window.$ = window.jQuery = require('jquery')
+const clipboard = require('electron').clipboard;
+
+function updateAvaiableFormats(clipboard) {
+  var formats = clipboard.availableFormats();
+  $('.format').removeClass('format-available').addClass('format-unavailable')
+
+  for(let i in formats) {
+    let format = formats[i]
+
+    if (format == 'text/plain') {
+      $('.nav-text').removeClass('format-unavailable').addClass('format-available')
+    } 
+    else if (format == 'text/html') {
+      $('.nav-html').removeClass('format-unavailable').addClass('format-available')
+    }
+    else if (format == 'text/rtf') {
+      $('.nav-rtf').removeClass('format-unavailable').addClass('format-available')
+    }
+    else if (format == 'image/png') {
+      $('.nav-image').removeClass('format-unavailable').addClass('format-available')
+    }
+    else {
+      console.log('Unsupported format: ', format)
+    }
+  }
+}
+
+function selectFirstAvailable() {
+  $('.format').removeClass('selected')
+  $('.format-available').first().click()
+}
+
+function readClipboardData(clipboard) {
+  return {
+    'text': clipboard.readText(),
+    'html': clipboard.readHTML(),
+    'rtf': clipboard.readRTF(),
+    'image': clipboard.readImage(),
+  }
+}
+
+var contents = readClipboardData(clipboard)
+
+// bind event only once
+$('.nav-text').parent().on('click', () => {
+  if ($('.nav-text').hasClass('format-available')) {
+    $('.clipboard-display').text(contents.text)
+  }
+})
+
+$('.nav-html').parent().on('click', () => {
+  if ($('.nav-html').hasClass('format-available')) {
+    $('.clipboard-display').empty().append(contents.html)
+  }
+})
+
+$('.nav-rtf').parent().on('click', () => {
+  if ($('.nav-rtf').hasClass('format-available')) {
+    $('.clipboard-display').text(contents.rtf)
+  }
+})
+
+$('.nav-image').parent().on('click', () => {
+  if ($('.nav-image').hasClass('format-available')) {
+    $('.clipboard-display').empty().append('<img>')
+    $('.clipboard-display img').attr('src', contents.image.toDataURL())
+  }
+})
+      
+$('.format').parent().on('click', (ev) => {
+  let formatNode = $(ev.target) // if the <span> is clicked
+  if (ev.target.nodeName == 'LI') {
+    formatNode = $(ev.target).children('.format') // if the <li> is clicked
+  }
+  
+  if (formatNode.hasClass('format-available')) {
+    $('.format').removeClass('selected')
+    formatNode.addClass('selected')
+  }
+})
+
+$('.nav-refresh').parent().on('click', () => {
+  updateAvaiableFormats(clipboard) 
+  contents = readClipboardData(clipboard) // update conents that feed format click events
+  selectFirstAvailable()
+})
+
+$('.nav-refresh').parent().click()
+
+
+
+    </script>
   </body>
 </html>

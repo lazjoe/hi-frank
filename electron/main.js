@@ -120,7 +120,6 @@ app.on('activate', function () {
 // code. You can also put them in separate files and require them here.
 
 const ipcMain = electron.ipcMain;
-const clipboard = electron.clipboard;
 
 ipcMain.on('request_string', function (event, arg) {
   console.log('request received in main process: ', arg)
@@ -135,30 +134,6 @@ ipcMain.on('request_string', function (event, arg) {
     showInstantMessage(`${request}? I don't understand...`)
     //instantMessageWindow.openDevTools({mode:'detach'})
   }
-
-
-
-  // var formats = clipboard.availableFormats();
-  // for(let i in formats) {
-  //   let format = formats[i]
-
-  //   if (format == 'text/plain') {
-  //     console.log('[text/plain] ', clipboard.readText())
-  //   } 
-  //   else if (format == 'text/html') {
-  //     console.log('[text/html] ', clipboard.readHTML())
-  //   }
-  //   else if (format == 'text/rtf') {
-  //     console.log('[text/rtf] ', clipboard.readRTF())
-  //   }
-  //   else if (format == 'image/png') {
-  //     console.log('[image/png]', clipboard.readImage())
-  //   }
-  //   else {
-  //     console.log('Unsupported format: ', format)
-  //   }
-
-  // }
 });
 
 function showInstantMessage(message) {
