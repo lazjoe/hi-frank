@@ -1,0 +1,7 @@
+.word-container div {
+    margin: 10px;
+}
+
+.word-container div:hover {
+    background: lightblue;
+}

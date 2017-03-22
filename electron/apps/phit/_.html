@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="../../static/photon/css/photon.css" />
+    <link rel="stylesheet" href="_.css" />
+    
+    <title>Phi-T</title>
+  </head>
+
+  <body>
+    <!-- Wrap your entire app inside .window -->
+    <div class="window">
+      <!-- .toolbar-header sits at the top of your app -->
+
+
+      <!-- Your app's content goes inside .window-content -->
+      <div class="window-content">
+        <div class="pane-group cols">
+
+          <div class="pane-mini sidebar ">
+          </div>
+          <div class="pane user main left">
+            <div class="pane-group rows">
+              <div class="simple-box frame annotated source">
+                <div class="simple-box header">ANNOTATED SOURCE</div>
+                <div class="simple-box content" id="annotated-source" > 
+                  <!--contenteditable=true-->
+             
+                </div>
+              </div>
+              <div class="pane user splitter horizontal"></div>
+              <div class="simple-box frame annotated target">
+                <div class="simple-box header">ANNOTATED TARGET</div>
+                <div class="simple-box content">
+
+                </div>
+             
+              </div>
+              <div class="simple-box frame machine-translation">
+                <div class="simple-box header">MACHINE TRANSLATION</div>
+                <div class="simple-box content">
+
+                </div>
+             
+              </div>
+
+            </div>
+          </div>
+          <div class="pane user main splitter vertical">
+          </div>
+          <div class="pane main right">
+          </div>
+      </div>
+
+    </div>
+    <footer class="toolbar toolbar-footer">
+        <h1 class="title"></h1>
+    </footer>
+    <script>
+      window.$ = window.jQuery = require('jquery')
+    </script>
+
+    <script src="md5.js"></script>
+    <script src="_.js"></script>
+
+  </body>
+</html>

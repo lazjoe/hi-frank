@@ -1,0 +1,40 @@
+{
+    "apiVersion": "0.1.0",
+
+    "time": "2017-3-20", // time of capturing the snapshot of a well data and status
+    "category": "plan", // plan | installed
+
+    "wellName": "AL-0001",
+    "operator": "KOC",
+    "zones": [
+        {
+            "top": "17283 ft",
+            "bottom": "17330 ft",
+            "lithology": "clean carbonate"
+        }
+    ],
+    "completion": {
+        "casings": [
+            {
+                "OD": "5 in",
+                "grade": "CRA125",
+                "weight": "21.4 lb/ft",
+                "ID": "",
+                "burst": {"val": "15000 psi", "src": "guess"},
+                "collapse": {"val": "15000 psi", "src": "guess"}
+            }
+        ],
+        "tubings": [
+            {
+                "OD": "3.5 in",
+                "grade": "",
+                "weight": "",
+                "ID": "",
+                "burst": "",
+                "collapse": ""
+            }
+        ] 
+    }
+    
+
+}

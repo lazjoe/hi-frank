@@ -82,6 +82,8 @@ function createWindow (app, settings) {
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
+let workAreaSize
+
 app.on('ready', function () {
   createMainWindow();
 
@@ -97,6 +99,7 @@ app.on('ready', function () {
     ()
   })
 
+  workAreaSize = electron.screen.getPrimaryDisplay().workAreaSize
 })
 
 // Quit when all windows are closed.
@@ -129,7 +132,11 @@ ipcMain.on('request_string', function (event, arg) {
   if (request == 'g_plot') {
     createWindow('datafrac/g_plot')
   } else if (request == 'clipboard') {
-    createWindow('clipboard')
+    createWindow('clipboard')  
+  } else if (request == 'word_agent' || request == 'wa') {
+    createWindow('word_agent')  
+  } else if (request == 'phit') {
+    createWindow('phit', {width: 1280, height: 720}) //{width: workAreaSize.width, height: workAreaSize.height} )
   } else {
     showInstantMessage(`${request}? I don't understand...`)
     //instantMessageWindow.openDevTools({mode:'detach'})
