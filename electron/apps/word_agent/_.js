@@ -7,7 +7,7 @@ const clipboard = require('electron').clipboard;
 const fs = require("fs")
 const AdmZip = require('adm-zip')
 
-const filepath = `${__dirname}/test/1.docx`
+const filepath = `${__dirname}/test/2.docx`
 console.log(filepath)
 
 const zip = new AdmZip(filepath); 
@@ -46,6 +46,9 @@ $(xml).find('p').each(function() {
         $(this).find('u').each(() => {
             run = '<u>' + run + '</u>'
         })
+        $(this).find('strike').each(() => {
+            run = '<strike>' + run + '</strike>'
+        })
         $(this).find('vertAlign').each(function() {
             if ($(this).attr('w:val') == 'subscript') { //don't know why attributes need namespace to be find but doms don't
                 run = '<sub>' + run + '</sub>'
@@ -58,6 +61,7 @@ $(xml).find('p').each(function() {
         html = html + run
     })
 
+    // TODO: Rewrite this algorithm to support cross-sentence formatting. i.e. handle seperator breaking within tags
     // split the paragragh into sentences
     let regex = /([。？！])/
     let sentences = html.split(regex)
@@ -71,12 +75,14 @@ $(xml).find('p').each(function() {
             i++ // skip next as it has been already combined into current sentences
         }
         $(".word-container").append('<div>' + cur + '</div>')
+        console.log(cur)
     }
 
     //handle last sentence
     let cur = sentences[sentences.length-1]
     if (!(cur.match(regex))) {
         $(".word-container").append('<div>' + cur + '</div>')
+        console.log(cur)
     }
 
     //$(".word-container").append(`<div>${html}</div>`)

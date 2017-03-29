@@ -4,11 +4,15 @@
     <meta charset="utf-8">
     <link rel="stylesheet" href="../../static/photon/css/photon.css" />
     <link rel="stylesheet" href="_.css" />
-    
-    <title>Phi-T</title>
+    <link rel="stylesheet" href="editor.css" />
+
+    <title>φ.t</title>
   </head>
 
   <body>
+    <!--<div id='test' class="pane user splitter horizontal" style="position:absolute;top:100;left:200; z-index: 999">
+      <textarea name="asdf" id="" cols="30" rows="1"></textarea>
+    </div>-->
     <!-- Wrap your entire app inside .window -->
     <div class="window">
       <!-- .toolbar-header sits at the top of your app -->
@@ -22,34 +26,18 @@
           </div>
           <div class="pane user main left">
             <div class="pane-group rows">
-              <div class="simple-box frame annotated source">
-                <div class="simple-box header">ANNOTATED SOURCE</div>
-                <div class="simple-box content" id="annotated-source" > 
-                  <!--contenteditable=true-->
-             
-                </div>
-              </div>
-              <div class="pane user splitter horizontal"></div>
-              <div class="simple-box frame annotated target">
-                <div class="simple-box header">ANNOTATED TARGET</div>
-                <div class="simple-box content">
-
-                </div>
-             
-              </div>
-              <div class="simple-box frame machine-translation">
-                <div class="simple-box header">MACHINE TRANSLATION</div>
-                <div class="simple-box content">
-
-                </div>
-             
-              </div>
-
+              <div class="container annotated source"></div>
+              <div class="splitter horizontal"></div>
+              <div class="container annotated target"></div>
+              <div class="splitter horizontal"></div>
+              <div class="container machine-translation"></div>
             </div>
           </div>
-          <div class="pane user main splitter vertical">
+          <div class="main splitter vertical">
           </div>
-          <div class="pane main right">
+          <div class="pane user main right">
+              <div class="container glossary"></div>
+              <div class="container search"></div>
           </div>
       </div>
 
@@ -60,8 +48,12 @@
     <script>
       window.$ = window.jQuery = require('jquery')
     </script>
-
     <script src="md5.js"></script>
+    <script src="robot.js"></script>
+    
+    <script src="editor.js"></script>
+    <script src="translator.js"></script>
+    <script src="glossary.js"></script>
     <script src="_.js"></script>
 
   </body>
