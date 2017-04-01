@@ -13,7 +13,7 @@ function baidu_translate(query, callback, from, to) {
     var salt = (new Date).getTime();
 
     var str1 = appid + query + salt + key;
-    var sign = MD5(str1);
+    var sign = require('../../static/md5').MD5(str1);
 
     $.ajax({
         url: 'http://api.fanyi.baidu.com/api/trans/vip/translate',

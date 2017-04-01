@@ -1,4 +1,4 @@
-const fs = require('fs')
+const fs1 = require('fs')
 
 class GlossaryManager {
 
@@ -7,7 +7,7 @@ class GlossaryManager {
     }
 
     loadLocalFile(path) {
-        fs.readFile(path, function (error, data) {
+        fs1.readFile(path, function (error, data) {
             if (error) {
                 console.log(error)
                 return false

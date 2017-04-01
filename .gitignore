@@ -1,3 +1,4 @@
 /electron/node_modules
 /electron/apps/word_agent/test
+/electron/apps/phit/test
 /proton/venv

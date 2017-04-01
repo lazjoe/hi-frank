@@ -27,6 +27,14 @@
     width: 100%
 }
 
+.corpus.reserved {
+    background: rgba(200,200,200,0.7)
+}
+
+.corpus.fragment {
+    background: rgba(200,200,200,0.3)
+}
+
 textarea {
     width: 100%;
     height: 100%;

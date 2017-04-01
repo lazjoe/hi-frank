@@ -66,35 +66,29 @@ $(xml).find('p').each(function() {
     let regex = /([。？！])/
     let sentences = html.split(regex)
 
-    let i=0
-    while (i < sentences.length - 1) {
+    for (let i=0;i<sentences.length-1;i++) {
+        let cur = sentences[i]
+        let next = sentences[i+1]
 
-        i += 2
+        if (next.match(regex)) {
+            cur = cur + next
+            i++ // skip next as it has been already combined into current sentences
+        }
+        $(".article-container").append('<div>' + cur + '</div>')
+        console.log(cur)
     }
-    // for (let i=0;i<sentences.length-1;i++) {
-    //     let cur = sentences[i]
-    //     let next = sentences[i+1]
 
-    //     if (next.match(regex)) {
-    //         cur = cur + next
-    //         i++ // skip next as it has been already combined into current sentences
-    //     }
-        
-    //     $(".word-container").append('<div>' + cur + '</div>')
-    //     console.log(cur)
-    // }
+    //handle last sentence
+    let cur = sentences[sentences.length-1]
+    if (!(cur.match(regex))) {
+        $(".article-container").append('<div>' + cur + '</div>')
+        console.log(cur)
+    }
 
-    // //handle last sentence
-    // let cur = sentences[sentences.length-1]
-    // if (!(cur.match(regex))) {
-    //     $(".word-container").append('<div>' + cur + '</div>')
-    //     console.log(cur)
-    // }
-
-    //$(".word-container").append(`<div>${html}</div>`)
+    //$(".article-container").append(`<div>${html}</div>`)
 });
 
-$(".word-container div").click(function() {
+$(".article-container div").click(function() {
     //clipboard.writeText($(this).html())
     clipboard.writeHTML($(this).html())
 })

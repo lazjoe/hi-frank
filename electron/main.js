@@ -86,6 +86,8 @@ let workAreaSize
 
 app.on('ready', function () {
   createMainWindow();
+  mainWindow.hide()
+  createWindow('phit', {width: 1280, height: 720}) //{width: workAreaSize.width, height: workAreaSize.height} )
 
   // create window for Frank to reply with instant message
   instantMessageWindow = createWindow('instant_message', {

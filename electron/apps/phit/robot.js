@@ -23,4 +23,4 @@ class KeyboardRobot {
     }
 }
 
-keyboard = new KeyboardRobot
+exports.keyboard = new KeyboardRobot()

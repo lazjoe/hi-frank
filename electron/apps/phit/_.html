@@ -23,6 +23,67 @@
         <div class="pane-group cols">
 
           <div class="pane-mini sidebar ">
+            <ul class="list-group">
+              <!--<li class="list-group-header">
+              </li>-->
+
+              <li>
+                <span class="icon icon-login nav-import-file"></span>
+                <div class="tooltip nav-import-file">Import a new file to translate (create a phit file)</div>
+              </li >
+              <li>
+                <span class="icon icon-doc-text-inv nav-open-file"></span>
+                <div class="tooltip nav-open-file">Open an imported file</div>
+              </li>
+              <li>
+                <span class="icon icon-book nav-setup-library"></span>
+                <div class="tooltip nav-setup-library">Set up libraries (glossary/dictionary)</div>
+              </li>
+              <li>
+                <span class="icon icon-floppy nav-save-as"></span>
+                <div class="tooltip nav-save-as">Save the working phit file to other folder</div>
+              </li>
+              <li>
+                <span class="icon icon-logout nav-export-file"></span>
+                <div class="tooltip nav-export-file">Export a translated file</div>
+              </li >
+              <li class="list-splitter"><hr></li>
+              <li>
+                <span class="icon icon-cw nav-reset-item"></span>
+                <div class="tooltip nav-reset-item">Reset the current item </div>
+              </li>
+              <li>
+                <span class="icon icon-doc-text nav-select-item"></span>
+                <div class="tooltip nav-select-item">Select an item from imported file</div>
+              </li>
+              <li>
+                <span class="icon icon-up-circled nav-next-item"></span>
+                <div class="tooltip nav-next-item">Move to next item</div>
+              </li>
+              <li>
+                <span class="icon icon-down-circled nav-prev-item"></span>
+                <div class="tooltip nav-prev-item">Move to previous item</div>
+              </li>
+              <li class="list-splitter"><hr></li>
+              <li>
+                <span class="icon icon-cog nav-preferences"></span>
+                <div class="tooltip nav-preferences">Preferences</div>
+              </li >
+              <li>
+                <span class="icon icon-window nav-new-instance"></span>
+                <div class="tooltip nav-new-instance">New phit application instance</div>
+              </li >
+              <li>
+                <span class="icon icon-help-circled nav-help"></span>
+                <div class="tooltip nav-help">Help</div>
+              </li >              
+              <li>
+                <span class="icon icon-info-circled nav-information"></span>
+                <div class="tooltip nav-information">Information</div>
+              </li >
+ 
+            </ul>
+
           </div>
           <div class="pane user main left">
             <div class="pane-group rows">
@@ -41,17 +102,23 @@
           </div>
       </div>
 
+      <div class="dialog select-item">
+          <div class="dialog-header">DOCUMENT VIEWER</div>
+          <div class="article-container"></div>
+      </div>
     </div>
+
+    <!--<iframe src="itemlist/_.html" id="item-list-container"></iframe>-->
+
+
     <footer class="toolbar toolbar-footer">
         <h1 class="title"></h1>
     </footer>
     <script>
       window.$ = window.jQuery = require('jquery')
     </script>
-    <script src="md5.js"></script>
-    <script src="robot.js"></script>
-    
-    <script src="editor.js"></script>
+    <!--<script src="article.js"></script>-->
+    <script src="_editor.js"></script>
     <script src="translator.js"></script>
     <script src="glossary.js"></script>
     <script src="_.js"></script>
