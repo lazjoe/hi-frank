@@ -11,13 +11,20 @@ const AdmZip = require('adm-zip')
 
 // import internal modules
 const {Article, Paragraph, Sentence} = require('./article')
-const editor = require('./editor')
+const {AnnotatedSource} = require('./annotated_source')
+const {AnnotatedTarget, MachineTranslation} = require('./annotated_target')
+const np = require('./nodeplus')
+const {CorpusType, Corpus, Frame, Line, placeholder} = require('./corpus')
+const {BaiduTranslator} = require('./translator')
+const {Glossary, GlossaryManager} = require('./glossary')
 
 // define names and variables
 const testFilePath = `${__dirname}/test/2.docx`
 
 var projectPath = '/Users/apple/Documents/translation/phit_project_1'
 var phitPath = '/Users/apple/Documents/translation/phit' // TODO: get system document folder path
+var originFile = null
+var projectFile = null
 var glossaryPath = projectPath + '/glossary/corpus.txt'
 
 var annotatedSourcePane;
@@ -25,23 +32,22 @@ var annotatedTargetPane;
 var machineTranslationPane;
 var glossaryPane;
 var glossaryManager;
-var article;
+var articleView;
 //var originalSource
 
 $(document).ready( function () {
 
     // Initialize global variables
-    article = new Article(document.querySelector('.article-container'))
 
     // set up UI
+    articleView = new Article(document.querySelector('.article-container'))
+    articleView.addEventListener('switch', sentenceSwitching)
+    
     setupSplitters()
     setupEditors()
     setupNavIcons()
     //originalSource = clipboard.readHTML()
     //annotatedSourcePane.setContent(originalSource)
-
-    // Hook up events
-    article.addEventListener('switch', sentenceSwitching)
 })
 
 // UI initialzation
@@ -138,18 +144,28 @@ function setupSplitter(element) {
 }
 
 function setupEditors() {
+    // set up annotated source pane
     annotatedSourcePane = new AnnotatedSource({ 
         'container': document.querySelector('.container.annotated.source')
     })
-    annotatedSourcePane.initialize()
     annotatedSourcePane.addEventListener('submit', annotatedSourceSubmitted)
-    
-    glossaryPane = new GlossaryPane({ 
-        'container': document.querySelector('.container.glossary')
+    annotatedSourcePane.addEventListener('change', annotatedSourceChanged)
+
+    // set up annotated target pane
+    annotatedTargetPane = new AnnotatedTarget({ 
+        'container': document.querySelector('.container.annotated.target')
+    })
+
+    // set up machine translation pane
+    machineTranslationPane = new MachineTranslation({ 
+        'container': document.querySelector('.container.machine-translation')
+    })
+
+    glossaryPane = new Glossary({ 
+         'container': document.querySelector('.container.glossary')
     })
     glossaryManager = new GlossaryManager()
     glossaryManager.loadLocalFile(glossaryPath)   
-
 }
 
 function importFile(url, ready) {
@@ -193,7 +209,11 @@ function importFile(url, ready) {
                     }            
                 })
 
-                run = `<span class="${style.join(' ')}">${run}</span>`
+                if (style.length > 0) {
+                    run = `<span class="${style.join(' ')}">${run}</span>`
+                } else {
+                    run = `<span>${run}</span>`
+                }
 
                 html = html + run
             })
@@ -201,7 +221,7 @@ function importFile(url, ready) {
             //console.log(html)
             let docNode = document.createElement('div')
             docNode.innerHTML = html
-            mergeChildNodes(docNode)
+            np.mergeChildNodes(docNode)
             html = docNode.innerHTML
 
             // split the paragragh into sentences
@@ -241,11 +261,11 @@ function importFile(url, ready) {
             for(let sentence of sentences) {
                 let s = paragraph.addSentenceWithOrigin(sentence)
                 s.addEventListener('click', () => {
-                    article.setCurrentSentence(s)
+                    articleView.setCurrentSentence(s)
                 })
             }
 
-            article.addParagraph(paragraph)
+            articleView.addParagraph(paragraph)
             console.log(html)
         });
        
@@ -262,13 +282,14 @@ function importFile(url, ready) {
 function setupNavIcons() {
     // bind UI navigator events, should only be called once
     $('.nav-import-file').parent().on('click', () => {
-        let files = dialog.showOpenDialog({properties: ['openFile']})
-        if (!files || !(files.length)) {
-            return
-        }
+        //let files = dialog.showOpenDialog({properties: ['openFile']})
+        // if (!files || !(files.length)) {
+        //     return
+        // }
+        originFile = testFilePath //files[0]
         // save previous project 
         // cleanup current project
-        importFile(files[0], ()=>{
+        importFile(originFile, ()=>{
             $('.dialog.select-item').click(function() {
                 $('.dialog.select-item').fadeOut(300)
             })
@@ -278,7 +299,7 @@ function setupNavIcons() {
         $('.dialog.select-item').fadeIn(300)
     })
  
-    $('.nav-nav-open-file').parent().on('click', () => {
+    $('.nav-open-file').parent().on('click', () => {
         
     })
 
@@ -312,127 +333,175 @@ function setupNavIcons() {
 
 }
 
-// UI event handlers
+//*** UI event handlers ***
 function sentenceSwitching(e) {
     console.log(e.from, e.to)
-}
 
-function annotatedSourceSubmitted() {
-    alert('annotatedSourceSubmitted')
-}
+    if (e.from) { // save the content of editors
+        e.from.source.content = annotatedSourcePane.content
+        e.from.target.content = annotatedTargetPane.content
+        e.from.mt_res.content = machineTranslationPane.content
+    } 
 
-function translateSource() {
-    let source = $('#annotated-source div').html().trim()
-
-    baidu_translate(originalSource, (d)=>{ 
-        $('#machine-translation').append('<div contenteditable=true>' + d.trans_result[0].dst + '</div>')
-    })   
-
-    // analyze annotated source
-    let frame = ''; 
-    let corpus = '';
-
-    //let corpusName = 'A'; //$X:A";
-    let lc = 0;
-
-    let corpusList = [];
-    
-    for (let i = 0; i < source.length; i++) {
-        
-        let c = source.charAt(i);
-        
-        if (c=='[') {
-            lc++;
-        } else if (c==']') {
-            lc--;
-                                
-            let corpusName = 'A'+ Math.floor(Math.random()*90000+10000)
-            let corpusObj = { 'name': corpusName, 'value': corpus, 'lang': 'zh' };
-            
-            corpusList.push(corpusObj);
-            
-            frame = frame + ' ' + corpusName + ' ';
-            
-            //reset corpus name for next occurrence
-            //corpusName = ''+(parseInt(corpusName.charAt(0)) + 1);
-            
-            corpus = ''; 
+    if (e.to) {
+        if (e.to.source && e.to.source.hasContent) {
+            annotatedSourcePane.content = e.to.source.content
         } else {
-            if (lc > 0) {
-                corpus += c;
-            } else {
-                frame += c;
-            }
+            annotatedSourcePane.content = `<div class='l'>${e.to.origin.content}</div>`
+        }
+        if (e.to.target && e.to.target.hasContent) {
+            annotatedTargetPane.content = e.to.target.content
+        } else {
+            annotatedTargetPane.reset()
+        }
+        if (e.to.mt_res && e.to.mt_res.hasContent) {
+            machineTranslationPane.content = e.to.source.content
+        } else {
+            machineTranslationPane.reset()
         }
         
     }
 
-    console.log('frame: ', frame)
+    // if origin is dirty, need to let user know. 
+    // AnnotatedSource should reflect this change here and whenever it becomes dirty
 
-    query = frame
-    for (let i in corpusList) {
-        console.log(corpusList[i])
-        query = query + '\n' + corpusList[i].value
-    }
-
-    baidu_translate(query, (d)=>{ 
-        console.log(d) //d.trans_result
-
-
-
-    })     
-
-    // baidu_translate(source, (d)=>{
-    //     $('#annotated-target').val(d.trans_result[0].dst)
-    // })  
 }
 
+function annotatedSourceSubmitted(e) {
+    console.log(e.sourceNode)
 
+    annotatedTargetPane.reset()
+    machineTranslationPane.reset()
+    translateAnnotatedSource(e.sourceNode.innerHTML)
+}
 
+function annotatedSourceChanged(e) {
+    let context = e.sourceNode.innerText
+    let entries = glossaryManager.getEntries(context)
+    let html = ''
+    for (let entry of entries) {
+        html += `<div class='g'>${entry}</div>`
+    }
+    glossaryPane.content = html
+}
 
+/** parse source html, return lines including its frame and corpus list */
+function parseSource(source) {
+    if (!source) return []
+    let result = []
+
+    let sourceNode = document.createElement('div')
+    sourceNode.innerHTML = source
+
+    for(let div of sourceNode.childNodes) {
+        let line = new Line()
+        line.frame = new Frame()
+        let currentCorpus = null
+        let currentPlaceHolder = null
+ 
+
+        for (let span of div.childNodes) {
+            if (span.type && span.key) { // it is a corpus span
+                if (currentCorpus && currentCorpus.key == span.key) {
+                    currentCorpus.addSpan(span)
+
+                } else { // first span of a corpus, create a new one
+                    currentCorpus = new Corpus()
+                    line.corpusList.push(currentCorpus)
+                    currentCorpus.addSpan(span)
+                    if (!currentPlaceHolder) {
+                        currentPlaceHolder = placeholder()
+                    }
+                    currentCorpus.placeholder = currentPlaceHolder
+                }
+            } else { // it is a frame span
+                line.frame.addPlaceholder(currentPlaceHolder)
+                line.frame.addSpan(span)
+
+                currentCorpus = null
+                currentPlaceHolder = null
+            }
+        }
+
+        result.push(line)
+    }
+
+    return result
+}
+
+function parseSourceMT(source) {
+    if (!source) return []
+    let result = []
+
+    let sourceNode = document.createElement('div')
+    sourceNode.innerHTML = source
+
+    for(let div of sourceNode.childNodes) {
+        let line = new Line()
+        line.frame = new Frame()
+
+        for (let span of div.childNodes) {
+            line.frame.addSpan(span)
+        }
+
+        result.push(line)
+    }
+
+    return result       
+}
+
+/** given translated result in lines, simply feed it to annotated target pane  */
+function feedResultToTargetPane(lines) {
+    console.log(lines)
+
+    annotatedTargetPane.feedLines(lines)
+}
+
+function feedResultToMTPane(lines) {
+    machineTranslationPane.feedLines(lines)
+}
+
+function translateAnnotatedSource(source) {
+    let baidu = new BaiduTranslator()
+        // set up translators
+    baidu.resultHandler = feedResultToTargetPane
+    baidu.sourceLang = 'zh'
+    baidu.targetLang = 'en'
+    let baidu_lines = parseSource(source)
+    baidu.translate(baidu_lines)
+
+    let baiduMT = new BaiduTranslator()
+        // set up translators
+    baiduMT.resultHandler = feedResultToMTPane
+    baiduMT.sourceLang = 'zh'
+    baiduMT.targetLang = 'en'
+    let baiduMT_lines = parseSourceMT(source)
+    baiduMT.translate(baiduMT_lines)
+    // if more 
+    //google.translate(lines.clone())
+
+}
+
+function save() {
+
+}
+
+function load() {
+
+}
+
+// function translateSource(source) {
+//     baidu_translate(originalSource, (d)=>{ 
+//         $('#machine-translation').append('<div contenteditable=true>' + d.trans_result[0].dst + '</div>')
+//     })  
+// }
 // utilities
 // String.prototype.trim=function()
 // {
 //      return this.replace(/(^\s*)|(\s*$)/g, '');
 // }
 
-/** Merge adjacent child nodes if they share same class */
-function mergeChildNodes(node) {
-    let nodes = []
-    node.childNodes.forEach( (v) => {nodes.push(v)} ) // clone
 
-    for (let i=0, j=i+1; j<nodes.length; ) {    
-        for (; j<nodes.length; j++) {
-            if (hasSameClass(nodes[i],nodes[j])) {
-                nodes[i].innerHTML = nodes[i].innerHTML + nodes[j].innerHTML
-                node.removeChild(nodes[j])
-            } else {
-                i = j++
-                break
-            }
-        }
-    }
-}
-
-function hasSameClass(node1, node2) {
-    let c1 = node1.classList
-    let c2 = node2.classList
-
-    if (!c1.length && !c2.length) {return true}
-    if (c1.length != c2.length) {return false}
-
-    c1.forEach((value) => {
-        if (!c2.contains(value)) {return false}
-    })
-
-    return true
-}
-
-/** Merge two nodes. The properties of node2 will be discarded while its innerHTML will be merged into node1 */
-function mergeTwoNodes(node1, node2) {
-    node1.innerHTML = node1.innerHTML + node2.innerHTML
-    return node1
-}
 
                 
                 // $(this).find('b').each(() => {
@@ -484,3 +553,74 @@ function mergeTwoNodes(node1, node2) {
             // }
 
             //$(".article-container").append(`<div>${html}</div>`)
+
+
+    // for (let line of parseSource(source)) {
+        
+    //     baidu_translate(line.frame, (d)=>{ 
+    //         line.frame.target +  d.trans_result[0].dst
+    //     })   
+    // }
+
+
+    // baidu_translate(originalSource, (d)=>{ 
+    //     $('#machine-translation').append('<div contenteditable=true>' + d.trans_result[0].dst + '</div>')
+    // })   
+
+    // // analyze annotated source
+    // let frame = ''; 
+    // let corpus = '';
+
+    // //let corpusName = 'A'; //$X:A";
+    // let lc = 0;
+
+    // let corpusList = [];
+    
+    // for (let i = 0; i < source.length; i++) {
+        
+    //     let c = source.charAt(i);
+        
+    //     if (c=='[') {
+    //         lc++;
+    //     } else if (c==']') {
+    //         lc--;
+                                
+    //         let corpusName = 'A'+ Math.floor(Math.random()*90000+10000)
+    //         let corpusObj = { 'name': corpusName, 'value': corpus, 'lang': 'zh' };
+            
+    //         corpusList.push(corpusObj);
+            
+    //         frame = frame + ' ' + corpusName + ' ';
+            
+    //         //reset corpus name for next occurrence
+    //         //corpusName = ''+(parseInt(corpusName.charAt(0)) + 1);
+            
+    //         corpus = ''; 
+    //     } else {
+    //         if (lc > 0) {
+    //             corpus += c;
+    //         } else {
+    //             frame += c;
+    //         }
+    //     }
+        
+    // }
+
+    // console.log('frame: ', frame)
+
+    // query = frame
+    // for (let i in corpusList) {
+    //     console.log(corpusList[i])
+    //     query = query + '\n' + corpusList[i].value
+    // }
+
+    // baidu_translate(query, (d)=>{ 
+    //     console.log(d) //d.trans_result
+
+
+
+    // })     
+
+    // baidu_translate(source, (d)=>{
+    //     $('#annotated-target').val(d.trans_result[0].dst)
+    // })  

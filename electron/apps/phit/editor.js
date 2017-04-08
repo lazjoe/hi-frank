@@ -1,36 +1,51 @@
-class Editor {
+const { NodeWrapper } = require('./nodewrapper')
+
+class Editor extends NodeWrapper {
     constructor(args) {
         var args = args || {}
-        this.container = args.container //|| document.createElement('div')
-        this.id = args.id || 'editor' + Math.floor(Math.random()*10000+1000)
+
+        super(args.container)
+        this.addClass('editor')
+        //this.id = args.id || 'editor' + Math.floor(Math.random()*10000+1000)
         this.title = args.title || 'EDITOR'
         this.editable = args.editable || true
 
-        this.outerBox = document.createElement('div')
-        this.outerBox.setAttribute('class', 'simple-box')
-        this.outerBox.setAttribute('id', this.id)
+        this.header = document.createElement('div')
+        this.header.setAttribute('class', 'editor-header')
+        this.header.innerText = this.title
 
-        this.headerBox = document.createElement('div')
-        this.headerBox.setAttribute('class', 'simple-box-header')
-        this.headerBox.innerText = this.title
+        this._content = document.createElement('div')
+        this._content.setAttribute('class', 'editor-content')
+        this._content.setAttribute('contenteditable', this.editable)
+        this._content.container = this
 
-        this.contentBox = document.createElement('div')
-        this.contentBox.setAttribute('class', 'simple-box-content')
+        this.node.appendChild(this.header)
+        this.node.appendChild(this._content)
+    
+    }
 
-        this.innerBox = document.createElement('div')
-        this.innerBox.setAttribute('contenteditable', this.editable)
-        this.innerBox.editorObj = this // for events to trace back to the object
+    set content(content) {
+        this._content.innerHTML = content
+        this.changed()
+        return this._content.innerHTML // innerHTML is not necessarily equal to content because browser will check and make it compliant to syntax
+    }
 
-        this.contentBox.appendChild(this.innerBox)
-        this.outerBox.appendChild(this.headerBox)
-        this.outerBox.appendChild(this.contentBox)
+    get content() {
+        return this._content.innerHTML
+    }
 
-        if (this.container) {
-            this.container.appendChild(this.outerBox)
-        }
-        //$(this.outerBox).append(`<div class="simple-box-header">${this.title}</div>`)
-        //$(this.outerBox).append(`<div class="simple-box-content"></div>`) 
-        //$(this.outerBox).find('.simple-box-content').append(`<div contenteditable=true></div>`) 
+    /** fire submit event */
+    submit() {
+        var event = new CustomEvent('submit')
+        event.sourceNode = this._content
+        this.node.dispatchEvent(event)
+    }
+    
+    /** fire content change event */
+    changed() {
+        var event = new CustomEvent('change')
+        event.sourceNode = this._content
+        this.node.dispatchEvent(event)
     }
 }
 

@@ -1,22 +1,47 @@
-const fs1 = require('fs')
+const fs = require('fs')
+const {Editor} = require('./editor')
 
 class GlossaryManager {
 
     constructor (args) {
-       // this.
+       this.entryTable = {}
     }
 
     loadLocalFile(path) {
-        fs1.readFile(path, function (error, data) {
+        fs.readFile(path, (error, data) => {
             if (error) {
                 console.log(error)
                 return false
             }
 
-            // data.utf8Slice('\n').forEach(function (entry) {
-
-            // })
+            data.utf8Slice('\n').split('\n').forEach((entry) => {
+                let pair = entry.split('\t')
+                if (pair.length == 2) {
+                    this.entryTable[pair[0].trim()] = pair[1].trim()
+                    console.log(pair[0], ' = ', pair[1])
+                } 
+            })
         })
+    }
+
+    getEntries(context) {
+        let matched = []
+
+        for (let entry of Object.keys(this.entryTable)) {
+            if (context.match(entry)) {
+                matched.push(entry + ' = ' + this.entryTable[entry])
+            }
+        }
+
+        return matched
+    }
+}
+
+class Glossary extends Editor {
+    constructor(args) {
+        args.id = args.id || 'glossary'
+        args.title = args.title || 'GLOSSARY'
+        super(args)
     }
 }
 
@@ -28,3 +53,6 @@ class GlossaryManager {
 //         this.remoteLibraryPath = args.remoteLibraryPath // || TODO: get the glossary service
 //     }
 // }
+
+exports.GlossaryManager = GlossaryManager
+exports.Glossary = Glossary

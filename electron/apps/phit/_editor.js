@@ -359,7 +359,7 @@ class AnnotatedSource extends Editor {
                 case 8: // backspace
                     if (sel.isCollapsed) {
                         let pos = sel.focusOffset
-                        let text = sel.baseNode.data
+                        let text = sel.focusNode.data
                         if (pos == 0 && isInFirstDIV(sel.focusNode, this)) {
                             return
                         }

@@ -1,87 +1,108 @@
-class NodeWrapper {
-    constructor(node) {
-        if (node instanceof Node) {
-            this.node = node
-        }
-        else {
-            this.node = document.createElement('div')
-            if (typeof node == 'string') { // TODO: Validate if it's compliant with HTML syntax
-                this.node.innerHTML = node
-            }
-        } 
-
-        this.node.wrapper = this
-    }
-
-    addChild(Type, child) {
-        if (child instanceof Type) {
-            this.node.appendChild(child.node)
-        }
-        else {
-            if (typeof child == 'string') { // TODO: Validate if it's compliant with HTML syntax
-                child = new Type(child)
-                this.node.appendChild(child.node)
-            }
-        } 
-
-        return child
-    }   
-
-    /** Delegate the events operations (add/remove) to internal DOM components */
-    addEventListener(type, callback, useCapture) {
-        type = type || ''
-        useCapture = useCapture || false
-
-        if (callback instanceof Function) {
-            this.node.addEventListener(type, callback, useCapture)
-        }
-    }
-
-    removeEventListener(type, callback) {
-        type = type || ''
-
-        if (callback instanceof Function) {
-            this.node.removeEventListener(type, callback) 
-        }
-    }
-}
+const { NodeWrapper } = require('./nodewrapper')
 
 class SentenceItem extends NodeWrapper {
-    constructor(node, type) {
+    constructor(type, node) {
         super(node)
         this.node.classList.add(type)
 
         this.dirty = false
     }
 
+    get hasContent() {
+        return this.node.innerHTML && this.node.innerHTML.trim() != ''
+    }
+
+    get content() {
+        return this.node.innerHTML
+    }
+
+    set content(val) {
+        this.node.innerHTML = val
+    }
 }
 
 class Sentence extends NodeWrapper {
     constructor(node) {
         super(node)
         this.node.classList.add('s')
-
+        
         /** string in form of html representing original sentence */
-        this.items = {'origin': new SentenceItem(null,'origin'),
-                      'source': new SentenceItem(null,'source'),
-                      'target': new SentenceItem(null,'target'),
-                      'mt_res': new SentenceItem(null,'mt_res'),
-                      'result': new SentenceItem(null,'result')}        
+        this.items = {'origin': new SentenceItem('origin'),
+                      'source': new SentenceItem('source'),
+                      'target': new SentenceItem('target'),
+                      'mt_res': new SentenceItem('mt_res'),
+                      'result': new SentenceItem('result')}    
+
+        this.node.appendChild(this.items['origin'].node)
+        this.node.appendChild(this.items['source'].node)
+        this.node.appendChild(this.items['target'].node)
+        this.node.appendChild(this.items['mt_res'].node)
+        this.node.appendChild(this.items['result'].node)     
     }
 
-    setItem(item, type) {
+    // To maintain the order of these items, they cannot be created or appended
+    setItem(type, item) {
         if (item instanceof SentenceItem) {
             this.node.repacleChild(item.node, this.items[type].node)
+            this.items[type] = item
         } else {
-            if (typeof item == 'string') { // TODO: Validate if it's compliant with HTML syntax
-                item = new SentenceItem(item, type)
-                this.node.appendChild(item.node)
+            if (!item || typeof item == 'string') { // TODO: Validate if it's compliant with HTML syntax
+                let innerHTML = item || ''
+                if (this.items[type] instanceof SentenceItem) {
+                    item = this.items[type]
+                    item.content = innerHTML                 
+                } else { // Shouldn't run into here except initialization
+                    console.error(`Cannot set the sentence item for type ${type} with content ${innerHTML}`)
+                }
             }
         } 
-        this.items[type] = item
+
+        //if (this.items) { // when initializating, it's null when setItem is called in constructor
+        
+        //}  
 
         return item
     }  
+
+    get origin() {
+        return this.items.origin // ? this.items.origin : this.setItem('origin')
+    }
+
+    get source() {
+        return this.items.source // ? this.items.source : this.setItem('source')
+    }
+
+    get target() {
+        return this.items.target // ? this.items.target : this.setItem('target')
+    }
+
+    get mt_res() {
+        return this.items.mt_res // ? this.items.mt_res : this.setItem('mt_res')
+    }
+
+    get result() {
+        return this.items.result // ? this.items.result : this.setItem('result')
+    }
+
+    set origin(val) {
+        this.setItem('origin', val)
+    }
+
+    set source(val) {
+        this.setItem('source', val)
+    }
+
+    set target(val) {
+        this.setItem('target', val)
+    }
+
+    set mt_res(val) {
+        this.setItem('mt_res', val)
+    }
+
+    set result(val) {
+        this.setItem('result', val)
+    }
 
     get dirty() {
         return (this.items.origin && this.items.origin.dirty)
@@ -105,7 +126,7 @@ class Paragraph extends NodeWrapper {
     addSentenceWithOrigin(origin) {
         let sentence = new Sentence()
         //let orgin = new SentenceItem()
-        sentence.setItem(origin, 'origin')
+        sentence.origin = origin
         return this.addSentence(sentence)
     }
 }

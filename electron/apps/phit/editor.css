@@ -1,11 +1,12 @@
 
-.simple-box{
+.editor {
     display: flex;
     flex-flow: column;
-    height: 100%
+    height: 100%;
+    min-height: 20px;
 }
 
-.simple-box-header {
+.editor-header {
     padding: 2px 10px 1px 10px;
     text-align: center;
     background: gray;
@@ -15,24 +16,27 @@
     height: 20px;
 }
 
-.simple-box-content {
+.editor-content {
+
     flex: 1;
-    display: flex;
+    /*display: flex;
+    flex-flow: column;*/
+    margin: 3px;
     padding: 2px;
     overflow-y: auto; 
     /*height: 300px;*/
 }
-.simple-box-content div {
+.editor-content div {
     padding: 6px;
     width: 100%
 }
 
-.corpus.reserved {
+span[type=r] {
     background: rgba(200,200,200,0.7)
 }
 
-.corpus.fragment {
-    background: rgba(200,200,200,0.3)
+span[type=f] {
+    background: rgba(132,200,200,0.4)
 }
 
 textarea {
