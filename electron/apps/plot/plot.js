@@ -203,7 +203,7 @@ class Curve {
 	}
 
 	setLineStyle(style) {
-
+		
 	}
 }
 
