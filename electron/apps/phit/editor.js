@@ -37,15 +37,26 @@ class Editor extends NodeWrapper {
     /** fire submit event */
     submit() {
         var event = new CustomEvent('submit')
-        event.sourceNode = this._content
+        event.contentNode = this._content
         this.node.dispatchEvent(event)
     }
-    
+
     /** fire content change event */
     changed() {
         var event = new CustomEvent('change')
-        event.sourceNode = this._content
+        event.contentNode = this._content
         this.node.dispatchEvent(event)
+    }
+
+    search(keyword) {
+        var event = new CustomEvent('search')
+        keyword = keyword || window.getSelection().toString()
+        event.keyword = keyword
+        this.node.dispatchEvent(event)        
+    }
+
+    focus() {
+        this._content.focus()
     }
 }
 

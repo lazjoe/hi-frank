@@ -15,7 +15,7 @@ const {AnnotatedSource} = require('./annotated_source')
 const {AnnotatedTarget, MachineTranslation} = require('./annotated_target')
 const np = require('./nodeplus')
 const {CorpusType, Corpus, Frame, Line, placeholder} = require('./corpus')
-const {BaiduTranslator} = require('./translator')
+const {BaiduTranslator, cnki_dict} = require('./translator')
 const {Glossary, GlossaryManager} = require('./glossary')
 
 // define names and variables
@@ -23,7 +23,8 @@ const testFilePath = `${__dirname}/test/2.docx`
 
 var projectPath = '/Users/apple/Documents/translation/phit_project_1'
 var phitPath = '/Users/apple/Documents/translation/phit' // TODO: get system document folder path
-var originFile = null
+var originFilePath = null
+var projectFilePath = null
 var projectFile = null
 var glossaryPath = projectPath + '/glossary/corpus.txt'
 
@@ -150,16 +151,19 @@ function setupEditors() {
     })
     annotatedSourcePane.addEventListener('submit', annotatedSourceSubmitted)
     annotatedSourcePane.addEventListener('change', annotatedSourceChanged)
+    annotatedSourcePane.addEventListener('search', searchRequested)
 
     // set up annotated target pane
     annotatedTargetPane = new AnnotatedTarget({ 
         'container': document.querySelector('.container.annotated.target')
     })
+    annotatedTargetPane.addEventListener('submit', annotatedTargetSubmitted)
 
     // set up machine translation pane
     machineTranslationPane = new MachineTranslation({ 
         'container': document.querySelector('.container.machine-translation')
     })
+    machineTranslationPane.addEventListener('submit', annotatedTargetSubmitted) // use the same handler for submit
 
     glossaryPane = new Glossary({ 
          'container': document.querySelector('.container.glossary')
@@ -279,17 +283,32 @@ function importFile(url, ready) {
 
 }
 
+function getFileName(url) {
+    let s = url.split('/')
+    return s[s.length-1]
+}
+
+function changeSuffix(filename, suffix) {
+    let dotPos = filename.lastIndexOf('.')
+    if (dotPos > 0) { // -1: not found; 0: hidden file
+        return filename.substring(0, dotPos + 1) + suffix 
+    } else {
+        return filename + '.' + suffix
+    }
+}
+
 function setupNavIcons() {
     // bind UI navigator events, should only be called once
     $('.nav-import-file').parent().on('click', () => {
-        //let files = dialog.showOpenDialog({properties: ['openFile']})
-        // if (!files || !(files.length)) {
-        //     return
-        // }
-        originFile = testFilePath //files[0]
+        let files = dialog.showOpenDialog({properties: ['openFile']})
+        if (!files || !(files.length)) {
+            return
+        }
+        originFilePath =  files[0] //testFilePath
+        projectFilePath = phitPath + '/' + changeSuffix(getFileName(originFilePath), 'zip')
         // save previous project 
         // cleanup current project
-        importFile(originFile, ()=>{
+        importFile(originFilePath, ()=>{
             $('.dialog.select-item').click(function() {
                 $('.dialog.select-item').fadeOut(300)
             })
@@ -300,19 +319,38 @@ function setupNavIcons() {
     })
  
     $('.nav-open-file').parent().on('click', () => {
-        
+        let files = dialog.showOpenDialog({properties: ['openFile']})
+        if (!files || !(files.length)) {
+            return
+        }
+        let filePath =  files[0]
+        if (load(filePath)) {
+            projectFilePath = filePath
+            $('.dialog.select-item').click(function() {
+                $('.dialog.select-item').fadeOut(300)
+            })           
+        }
+       
+        $('.dialog.select-item').fadeIn(300)
     })
 
     $('.nav-setup-library').parent().on('click', () => {
         
     })
 
+    $('.nav-save-as').parent().on('click', () => {
+        save(projectFilePath)
+    })    
+    
     $('.nav-export-file').parent().on('click', () => {
         
     })
 
     $('.nav-reset-item').parent().on('click', () => {
-        
+        articleView.currentSentence.reset() // discard all annotated
+        annotatedSourcePane.content = `<div class='l'>${articleView.currentSentence.origin.content}</div>`
+        annotatedTargetPane.reset()
+        machineTranslationPane.reset()    
     })
 
     $('.nav-select-item').parent().on('click', () => {
@@ -320,11 +358,15 @@ function setupNavIcons() {
     })
 
     $('.nav-next-item').parent().on('click', () => {
-        
+        if (articleView.nextSentence) {
+            articleView.setCurrentSentence(articleView.nextSentence)
+        }
     })
 
     $('.nav-prev-item').parent().on('click', () => {
-        
+        if (articleView.previousSentence) {
+            articleView.setCurrentSentence(articleView.previousSentence)
+        }        
     })
 
     $('.nav-preferences').parent().on('click', () => {
@@ -355,7 +397,7 @@ function sentenceSwitching(e) {
             annotatedTargetPane.reset()
         }
         if (e.to.mt_res && e.to.mt_res.hasContent) {
-            machineTranslationPane.content = e.to.source.content
+            machineTranslationPane.content = e.to.mt_res.content
         } else {
             machineTranslationPane.reset()
         }
@@ -368,21 +410,40 @@ function sentenceSwitching(e) {
 }
 
 function annotatedSourceSubmitted(e) {
-    console.log(e.sourceNode)
+    console.log(e.contentNode)
 
     annotatedTargetPane.reset()
     machineTranslationPane.reset()
-    translateAnnotatedSource(e.sourceNode.innerHTML)
+    translateAnnotatedSource(e.contentNode.innerHTML)
 }
 
 function annotatedSourceChanged(e) {
-    let context = e.sourceNode.innerText
+    let context = e.contentNode.innerText
     let entries = glossaryManager.getEntries(context)
     let html = ''
     for (let entry of entries) {
         html += `<div class='g'>${entry}</div>`
     }
     glossaryPane.content = html
+}
+
+function searchRequested(e) {
+    console.log(e)
+    cnki_dict(e.keyword, (res)=>{
+        console.log(res)
+        $('.search-result-container').append(res)
+        $('.dialog.search-result').fadeIn(300)
+    })
+}
+
+function annotatedTargetSubmitted(e) {
+    console.log(e.contentNode)
+
+    articleView.currentSentence.setItem('result', e.contentNode.innerHTML)
+    if (articleView.nextSentence) {
+        articleView.setCurrentSentence(articleView.nextSentence)
+    }
+    annotatedSourcePane.focus()
 }
 
 /** parse source html, return lines including its frame and corpus list */
@@ -482,14 +543,71 @@ function translateAnnotatedSource(source) {
 
 }
 
-function save() {
+function save(url) {
+    url = url || projectFilePath
 
+    // if (url && url != projectFilePath) {
+    //     projectFilePath = url
+    //     projectFile = new AdmZip(url);
+    // } else { 
+    //     if (!projectFile)  {
+    //         projectFile = new AdmZip(url);
+    //     }
+    // }
+
+    try {
+        let docStr = articleView.node.innerHTML
+        
+        let zip = new AdmZip()
+        zip.addFile("article.xml", new Buffer(docStr), "phit document content")
+        zip.writeZip(url)
+
+        projectFile = zip
+        sendMessage(`Successful saving current project to ${url}.`)
+    } catch (e) {
+        console.error('Error happend when saving ' + url, e)
+        return false
+    }
+
+    return true
 }
 
-function load() {
+function load(url) {
+    try {
+        let zip = new AdmZip(url)
 
+        let contentXml = zip.readAsText("article.xml");
+        //let xml = $.parseXML(contentXml)
+        //let newArticleNode = document.createElement('div')
+        let currentArticleNode = document.querySelector('.article-container')
+        //currentArticleNode.parentNode.replaceChild(newArticleNode, currentArticleNode)
+
+        currentArticleNode.innerHTML = contentXml
+        let newArticle = new Article(currentArticleNode)
+        articleView = newArticle
+        projectFile = zip
+        sendMessage(`Successful loading current project from ${url}.`)
+        
+        for (let s of currentArticleNode.querySelectorAll('.s')) {
+                s.wrapper.addEventListener('click', () => {
+                    articleView.setCurrentSentence(s.wrapper)
+                })
+        }
+           
+    } catch (e) {
+        console.error('Error happend when loading ' + url, e)
+        return false
+    }
+
+    return true
 }
 
+function sendMessage(msg, type) {
+    type = type || 'normal'
+    if (type == 'normal') {
+        console.log(msg)
+    }
+}
 // function translateSource(source) {
 //     baidu_translate(originalSource, (d)=>{ 
 //         $('#machine-translation').append('<div contenteditable=true>' + d.trans_result[0].dst + '</div>')

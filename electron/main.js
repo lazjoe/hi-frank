@@ -55,6 +55,9 @@ function createMainWindow () {
 }
 
 function createWindow (app, settings) {
+  // let show = settings.show
+  // settings.show = false
+
   // Create the browser window.
   newWindow = new BrowserWindow(settings)
 
@@ -64,6 +67,12 @@ function createWindow (app, settings) {
     protocol: 'file:',
     slashes: true
   }))
+
+// if (show !== false) {
+//    newWindow.once('ready-to-show', () => {
+//         newWindow.show()
+//    })
+// }
 
   // Open the DevTools.
   //newWindow.webContents.openDevTools( {mode:'detach'} )
@@ -86,15 +95,16 @@ let workAreaSize
 
 app.on('ready', function () {
   createMainWindow();
-  mainWindow.hide()
-  createWindow('phit', {width: 1280, height: 720}) //{width: workAreaSize.width, height: workAreaSize.height} )
+  //mainWindow.hide()
+  //createWindow('phit', {width: 1280, height: 720}) //{width: workAreaSize.width, height: workAreaSize.height} )
 
   // create window for Frank to reply with instant message
   instantMessageWindow = createWindow('instant_message', {
     width: 720, height: 60, resizable: false,
-    transparent: true, frame: false // use show:false here will cause weird behavior
+    transparent: true, frame: false, // use show:false here will cause weird behavior
+    show: false
   })
-  instantMessageWindow.hide()
+  //instantMessageWindow.hide()
 
   globalShortcut.register('CommandOrControl+.', () => {
     mainWindow.smartToggle
@@ -139,6 +149,8 @@ ipcMain.on('request_string', function (event, arg) {
     createWindow('word_agent')  
   } else if (request == 'phit') {
     createWindow('phit', {width: 1280, height: 720}) //{width: workAreaSize.width, height: workAreaSize.height} )
+  } else if (request == 'plot') {
+    createWindow('plot') //{width: workAreaSize.width, height: workAreaSize.height} )
   } else {
     showInstantMessage(`${request}? I don't understand...`)
     //instantMessageWindow.openDevTools({mode:'detach'})

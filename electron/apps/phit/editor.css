@@ -24,6 +24,7 @@
     margin: 3px;
     padding: 2px;
     overflow-y: auto; 
+    -webkit-ime-mode: disabled;
     /*height: 300px;*/
 }
 .editor-content div {

@@ -22,9 +22,14 @@ class AnnotatedTarget extends Editor {
     setupKeyboard() {
         function keydownHandler (e) {
             let sel = document.getSelection()
-            
+            console.log('keydown', e)
             switch(e.which) {
                 case 13:
+                    if (e.ctrlKey || e.metaKey || e.shiftKey) {
+                        e.target.container.submit()
+                    } else if (!e.altKey) {
+
+                    }
                 break;
 
                  // keep default behavior for these keys
@@ -36,8 +41,13 @@ class AnnotatedTarget extends Editor {
         }
 
         this._content.addEventListener('keydown', keydownHandler)
-        this._content.addEventListener('keyup', ()=>{
+        this._content.addEventListener('keyup', (e)=>{
             //this.trimLines()
+             console.log('keyup',e)
+             e.target.innerHTML=e.target.innerHTML.replace(/[\u4e00-\u9fa5]/g,'')
+        })
+        this._content.addEventListener('input', (e)=>{
+            console.log('input',e)
         })
     }
 
@@ -64,6 +74,8 @@ class AnnotatedTarget extends Editor {
     feedExtraCorpus(Corpus) {
 
     } 
+
+    
 }
 
 class MachineTranslation extends AnnotatedTarget {

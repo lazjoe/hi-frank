@@ -84,9 +84,9 @@ class AnnotatedSource extends Editor {
                 break;
 
                 case 13: // enter
-                    if (e.ctrlKey || e.metaKey) {
+                    if (e.ctrlKey || e.metaKey || e.shiftKey) {
                         e.target.container.submit()
-                    } else if (!e.altKey && !e.shiftKey) {
+                    } else if (!e.altKey) {
                         np.breakLine(sel)
                     }
 
@@ -96,6 +96,10 @@ class AnnotatedSource extends Editor {
                     if (e.metaKey || e.ctrlKey || e.altKey) {return}
     
                     np.toggleCorpus(CorpusType.FRAGMENT, sel)   
+                break;
+
+                case 83: // S
+                    e.target.container.search(sel.toString())
                 break;
 
                  // keep default behavior for these keys

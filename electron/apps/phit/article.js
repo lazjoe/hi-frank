@@ -3,7 +3,14 @@ const { NodeWrapper } = require('./nodewrapper')
 class SentenceItem extends NodeWrapper {
     constructor(type, node) {
         super(node)
-        this.node.classList.add(type)
+
+        if (this.hasClass(type)) {
+            
+        } else {
+            this.setClass(type)
+        }
+        this.addClass('sentence-item')
+        //this.node.classList.add(type)
 
         this.dirty = false
     }
@@ -24,21 +31,38 @@ class SentenceItem extends NodeWrapper {
 class Sentence extends NodeWrapper {
     constructor(node) {
         super(node)
-        this.node.classList.add('s')
-        
-        /** string in form of html representing original sentence */
-        this.items = {'origin': new SentenceItem('origin'),
-                      'source': new SentenceItem('source'),
-                      'target': new SentenceItem('target'),
-                      'mt_res': new SentenceItem('mt_res'),
-                      'result': new SentenceItem('result')}    
+        this.addClass('s')
 
-        this.node.appendChild(this.items['origin'].node)
-        this.node.appendChild(this.items['source'].node)
-        this.node.appendChild(this.items['target'].node)
-        this.node.appendChild(this.items['mt_res'].node)
-        this.node.appendChild(this.items['result'].node)     
-    }
+//        if (this.hasClass('s')) {
+            let origin = this.node.querySelector('.origin')
+            let source = this.node.querySelector('.source')
+            let target = this.node.querySelector('.target')
+            let mt_res = this.node.querySelector('.mt_res')
+            let result = this.node.querySelector('.result')
+
+            this.items = {'origin': new SentenceItem('origin', origin),
+                          'source': new SentenceItem('source', source),
+                          'target': new SentenceItem('target', target),
+                          'mt_res': new SentenceItem('mt_res', mt_res),
+                          'result': new SentenceItem('result', result)}            
+        // } else {
+        //     this.setClass('s')
+
+        //     /** string in form of html representing original sentence */
+        //     this.items = {'origin': new SentenceItem('origin'),
+        //                 'source': new SentenceItem('source'),
+        //                 'target': new SentenceItem('target'),
+        //                 'mt_res': new SentenceItem('mt_res'),
+        //                 'result': new SentenceItem('result')}    
+
+            this.node.appendChild(this.items['origin'].node)
+            this.node.appendChild(this.items['source'].node)
+            this.node.appendChild(this.items['target'].node)
+            this.node.appendChild(this.items['mt_res'].node)
+            this.node.appendChild(this.items['result'].node)     
+        // }
+        
+     }
 
     // To maintain the order of these items, they cannot be created or appended
     setItem(type, item) {
@@ -63,6 +87,15 @@ class Sentence extends NodeWrapper {
 
         return item
     }  
+
+    reset() {
+            /** string in form of html representing original sentence */
+            //this.setItem('origin')
+            this.setItem('source')
+            this.setItem('target')
+            this.setItem('mt_res')
+            this.setItem('result')
+    }
 
     get origin() {
         return this.items.origin // ? this.items.origin : this.setItem('origin')
@@ -117,6 +150,12 @@ class Paragraph extends NodeWrapper {
     constructor(node) {
         super(node)
         this.node.classList.add('p')
+
+//        if (node instanceof Element) { // bind its children as well
+            for (let n of this.node.childNodes) {
+                new Sentence(n) // call wrapper's constructor to bind it to node
+            }
+//        }
     }
 
     addSentence(sentence) {
@@ -134,7 +173,13 @@ class Paragraph extends NodeWrapper {
 class Article extends NodeWrapper{
     constructor (node) {
         super(node)
-        this.node.classList.add('a')
+        this.addClass('a')
+
+//        if (node instanceof Element) { // bind its children as well
+            for (let n of this.node.childNodes) {
+                new Paragraph(n) // call wrapper's constructor to bind it to node
+            }
+//        }
 
         this.currentSentence = null
     }
@@ -162,8 +207,37 @@ class Article extends NodeWrapper{
         return false
     }
 
+    get nextSentence() {
+        let nextNode = this.currentSentence.node.nextSibling
+        
+        if (nextNode) {
+            return nextNode.wrapper
+        } 
+        
+        nextNode = this.currentSentence.node.parentNode.nextSibling.firstChild
+        
+        if (nextNode) {
+            return nextNode.wrapper
+        } 
 
+        return null
+    }
 
+    get previousSentence() {
+        let previousNode = this.currentSentence.node.previousSibling
+        
+        if (previousNode) {
+            return previousNode.wrapper
+        } 
+        
+        previousNode = this.currentSentence.node.parentNode.previousSibling.firstChild
+        
+        if (previousNode) {
+            return previousNode.wrapper
+        } 
+
+        return null
+    }
 }
 
 exports.Sentence = Sentence

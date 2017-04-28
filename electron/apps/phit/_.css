@@ -122,6 +122,25 @@ li hr {
     height: 95%;
 }
 
+.dialog.search-result {
+    bottom: 12px;
+    right: 20px;
+    width: 30%;
+    height: 50%;
+}
+
+.sentence-item.source {
+    display: none
+}
+
+.sentence-item.target {
+    display: none
+}
+
+.sentence-item.mt_res {
+    display: none
+}
+
 .dialog-header {
     padding: 2px 10px 1px 10px;
     text-align: center;

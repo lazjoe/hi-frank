@@ -19,6 +19,7 @@
     "jquery": "^3.2.0",
     "bootstrap": "^3.3.7",
     "adm-zip": "^0.4.7",
-    "robotjs": "^0.4.7"
+    "robotjs": "^0.4.7",
+    "htmlparser2": "^3.9.2"
   }
 }

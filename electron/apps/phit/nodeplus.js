@@ -561,6 +561,17 @@ function toggleCorpus(type, sel) { // type: f for fragment corpus and r for rese
     }
 }
 
+function getTagByClass(html, value)  {  
+    //<(?<ul>[\w]+)[^>]*\s[cC][lL][aA][sS][sS]=(?<Quote>["']?)productgroup-list(?(Quote)\k<Quote>)["']?[^>]*>((?<Nested><\k<ul>[^>]*>)|</\k<ul>>(?<-Nested>)|.*?)*</\k<ul>>  
+    let attr = /[cC][lL][aA][sS][sS]/
+    return string.Format("<(?<{0}>[\\w]+)[^>]*\\s{1}=(?<Quote>[\"']?){2}(?(Quote)\\k<Quote>)[\"']?[^>]*>((?<Nested><\\k<{0}>[^>]*>)|</\\k<{0}>>(?<-Nested>)|.*?)*</\\k<{0}>>", html, reclassORid, classORidvalue);  
+}
+
+function getTagByID(html, value)  {  
+    let attr  = /[iI][dD]/
+    return string.Format("<(?<{0}>[\\w]+)[^>]*\\s{1}=(?<Quote>[\"']?){2}(?(Quote)\\k<Quote>)[\"']?[^>]*>((?<Nested><\\k<{0}>[^>]*>)|</\\k<{0}>>(?<-Nested>)|.*?)*</\\k<{0}>>", html, reclassORid, classORidvalue);  
+}  
+
 // function findKey(span) {
 //     let key = null
 //     for (let c of node.classList) {

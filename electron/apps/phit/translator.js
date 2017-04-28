@@ -142,5 +142,22 @@ function baidu_translate(query, callback, from, to) {
     });
 }
 
+function cnki_dict(keyword, callback) {
+    let xmlhttp = new XMLHttpRequest()
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState==4 && xmlhttp.status==200) {
+            let i = document.createElement('div')
+            i.innerHTML = xmlhttp.responseText
+            //console.log(xmlhttp)
+            let zztj = i.querySelector('.zztj')
+            callback.call(xmlhttp, zztj);
+        }
+    }
+    let url = encodeURI("http://dict.cnki.net/dict_result.aspx?searchword=" + keyword)
+    xmlhttp.open('GET', url)
+    xmlhttp.send()
+}
+
 exports.baidu_translate = baidu_translate
 exports.BaiduTranslator = BaiduTranslator
+exports.cnki_dict = cnki_dict
