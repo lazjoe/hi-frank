@@ -3,6 +3,25 @@ const electron = require('electron')
 const app = electron.app
 const globalShortcut = electron.globalShortcut
 
+//const mongo = require('mongodb').MongoClient;
+const assert = require('assert');
+
+// Connection URL
+//const mongo_url = 'mongodb://localhost:27017';
+
+// Database Name
+const dbName = 'myproject';
+
+// Use connect method to connect to the server
+// mongo.connect(mongo_url, function(err, client) {
+//   assert.equal(null, err);
+//   console.log("Connected successfully to server");
+
+//   const db = client.db(dbName);
+
+//   client.close();
+// });
+
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
@@ -17,14 +36,21 @@ BrowserWindow.prototype.smartToggle = function () {
 const path = require('path')
 const url = require('url')
 
+const { Context } = require('./main/context.js')
+const { config } = require('./main/config.js')
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
 let instantMessageWindow
 
 function createMainWindow () {
+    let width = 720, height = 60
+    let bottom = 50
+    let top= workAreaSize.height - bottom - height
+    let left = Math.round((workAreaSize.width - width)/2)
     mainWindow = createWindow('request_bar', {
-    width: 720, height: 60, resizable: false,
+    x: left, y: top, width: width, height: height, resizable: false,
     transparent: true, frame: false
   })
   
@@ -54,6 +80,27 @@ function createMainWindow () {
 
 }
 
+function createMessengerWindow () {
+    let mainPos = mainWindow.getPosition()
+    let mainSize = mainWindow.getSize()
+
+    let width = 350 + 30
+    let height = 480
+    let top = mainPos[1] - height
+    let left = mainPos[0] + 560
+    //let top:200, bottom:200, left: workAreaSize.width - width - 120, right: 120}
+    //let margin = {top:200, bottom:0, left: Math.round(workAreaSize.width*0.65), right: 120}
+    //let width = workAreaSize.width - margin.left - margin.right
+    
+    instantMessageWindow = createWindow('instant_message', {
+      x: left, y: top, width: width, height: height, resizable: false,
+      hasShadow: false, //useContentSize: true, 
+      transparent: true, frame: false, alwaysOnTop: true
+    })
+
+    //instantMessageWindow.setIgnoreMouseEvents(true)
+}
+
 function createWindow (app, settings) {
   // let show = settings.show
   // settings.show = false
@@ -68,11 +115,6 @@ function createWindow (app, settings) {
     slashes: true
   }))
 
-// if (show !== false) {
-//    newWindow.once('ready-to-show', () => {
-//         newWindow.show()
-//    })
-// }
 
   // Open the DevTools.
   //newWindow.webContents.openDevTools( {mode:'detach'} )
@@ -94,24 +136,24 @@ function createWindow (app, settings) {
 let workAreaSize
 
 app.on('ready', function () {
+  workAreaSize = electron.screen.getPrimaryDisplay().workAreaSize
+
   createMainWindow();
   //mainWindow.hide()
   //createWindow('phit', {width: 1280, height: 720}) //{width: workAreaSize.width, height: workAreaSize.height} )
 
   // create window for Frank to reply with instant message
-  instantMessageWindow = createWindow('instant_message', {
-    width: 720, height: 60, resizable: false,
-    transparent: true, frame: false, // use show:false here will cause weird behavior
-    show: false
-  })
+  createMessengerWindow();
   //instantMessageWindow.hide()
 
+  // register hot keys
   globalShortcut.register('CommandOrControl+.', () => {
-    mainWindow.smartToggle
-    ()
+    mainWindow.smartToggle()
   })
 
-  workAreaSize = electron.screen.getPrimaryDisplay().workAreaSize
+  // load app configurations
+
+  mainWindow.show() // set the focus back to main window
 })
 
 // Quit when all windows are closed.
@@ -143,6 +185,8 @@ ipcMain.on('request_string', function (event, arg) {
 
   if (request == 'g_plot') {
     createWindow('datafrac/g_plot')
+  } else if (request == 'datafrac') {
+    createWindow('datafrac', {width: 1280, height: 720})
   } else if (request == 'clipboard') {
     createWindow('clipboard')  
   } else if (request == 'word_agent' || request == 'wa') {
@@ -150,29 +194,27 @@ ipcMain.on('request_string', function (event, arg) {
   } else if (request == 'phit') {
     createWindow('phit', {width: 1280, height: 720}) //{width: workAreaSize.width, height: workAreaSize.height} )
   } else if (request == 'plot') {
-    createWindow('plot') //{width: workAreaSize.width, height: workAreaSize.height} )
+    createWindow('plot', {useContentSize: true, width: 600, height: 520} )
   } else {
     showInstantMessage(`${request}? I don't understand...`)
     //instantMessageWindow.openDevTools({mode:'detach'})
   }
-});
+})
 
 function showInstantMessage(message) {
   if (!instantMessageWindow) {
-    instantMessageWindow = createWindow('instant_message', {
-      width: 720, height: 60, resizable: false,
-      transparent: true, frame: false
-    })
+
   }
 
-  var pos = mainWindow.getPosition()
-  instantMessageWindow.setPosition(pos[0], pos[1]-60)
-  instantMessageWindow.show()
+  // var pos = mainWindow.getPosition()
+  // instantMessageWindow.setPosition(pos[0], pos[1]-160)
+  // instantMessageWindow.show()
 
   //const {ipcMain} = require('electron');
-  instantMessageWindow.webContents.send('show_instant_message', message)
+  instantMessageWindow.webContents.send('show_instant_message', {message: message, type: 'error'})
 
   mainWindow.show() // set the focus back to main window
 }
 
-
+ipcMain.on('update_context', function (event, arg) {
+})

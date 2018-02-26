@@ -2,124 +2,59 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <!--<link rel="stylesheet" type="text/css" href="_.css" />-->
+        <link rel="stylesheet" href="../../static/hubspot/css/messenger.css" />
+        <link rel="stylesheet" href="../../static/hubspot/css/messenger-theme-future.css" />
         <style>
 body {
-  overflow: hidden;
-  background-color: rgba(255,255,99,0);
-  /*background: -webkit-linear-gradient(left,rgba(255,255,255,0),rgba(255,255,99,1));*/
-  margin: 0px;
-  /*display: block;*/
-  -webkit-app-region: drag;
-}
-
-#main {
-  width: 720px;
-  height: 60px;
+  /*width: 100%;
+  height: 100%;*/
   /*position: fixed;*/
-  /*background-color: rgba(0,0,0,0);*/
-  background: -webkit-linear-gradient(left,rgba(255,255,255,0) 15%,rgba(200,200,200,1));
-
+  /*background-color: rgba(0,0,0,0.1);*/
+  /*background: -webkit-linear-gradient(left,rgba(255,255,255,0) 15%,rgba(200,200,200,1));*/
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  /*font-size: 16px;*/
   margin: 0px;
   /*border-radius:16px;*/
   padding: 0px;
   /*display: block;*/
   -webkit-app-region: drag;
+  pointer-events:none
 }
-
-/*@-webkit-keyframes fade-in{
-    0%{ opacity: 0;}
-    100%{opacity:1;}
-}*/
-#prompt pre {
-  position: absolute;
-  top: 0px;
-  left: 668px;
-  width: 42px;
-  height: 100%;
-  font-size: 36px;
-  color: gray;
-  /*float:left;*/
-  margin-left: 15px;
-  margin-right: 8px;
-  margin-top:10px;
-  margin-bottom: 5px;
-  -webkit-user-select: none;
-  cursor: move;
-}
-
-#messagebox {
-  position: absolute;
-  top: 0px;
-  left: 0px;
-  width: 678px;
-  height: 44px;
-  background-color: rgba(0,0,0,0);
-  text-align: right;
-  font-size: 21px;
-  
-  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
-  color: rgba(60,60,60,1);
-  margin-top: 18px;
-
-  /*opacity: 0;
-  -webkit-animation: fade-in 4s ease 0s 1;*/
-}
-
-
-
 
         </style>
 	</head>
 	<body>
-
-    <div id="main">
-      <div id='messagebox'>
-
-      </div>
-      <div id="prompt">
-        <span> <pre>&lt;</pre> </span>
-      </div>
-
-    <script>
+        <div id="main">
+        </div>
+        <script>
 window.$ = window.jQuery = require('jquery')
-
+        </script>
+        <script src="../../static/hubspot/js/messenger.js"></script>
+        <script src="../../static/hubspot/js/messenger-theme-future.js"></script>
+        <script>
 const ipcRenderer = require('electron').ipcRenderer;
+Messenger.options = {
+    extraClasses: 'messenger-fixed messenger-on-bottom messenger-on-right',
+    theme: 'future'
+}
 
-ipcRenderer.on('show_instant_message', function (event, arg) {
-  console.log('Instant message received: ', arg)
+ipcRenderer.on('show_instant_message', function (event, args) {
+  console.log('Instant message received: ', args)
 
-  showInstantMessage(arg)
+  showInstantMessage(args)
 })
 
-function showInstantMessage(message) {
-  var mbox = $('#messagebox')
-  mbox.text(message)
-  
-  var main = $('#main')
-  main.fadeIn(500)  
+function showInstantMessage(args) {
 
-  const lifeTime = 4000
-  const fadeOutTime = 1000
+    Messenger().post(    {
+        message: args.message,
+        type: args.type,
+        showCloseButton: true
+    })
 
-  var now = new Date()
-  window.lastMessageTime = now.getTime()
-  setTimeout(()=>{
-    var now = new Date()
-    var life = lifeTime - (now.getTime() - window.lastMessageTime)
-    if (life <= 0 ) {
-      main.fadeOut(fadeOutTime)
-    } else {
-      
-    }
-  }, lifeTime) //reset to no new message after 4s
+
 }
 
-function fadeOutWindow(millisecond) {
-  var main = $('#main')
-  setTimeout(()=>{main.fadeOut(millisecond)}, 2000)
-}
-
-    </script>
+        </script>
 	</body>
 </html>

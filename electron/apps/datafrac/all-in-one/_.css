@@ -1,0 +1,191 @@
+.sidebar {
+    border: 1px solid #ddd;
+    width: 40px;
+    padding-top: 8px;
+}
+
+.icon {
+  font-size:20px; 
+  color:#666666
+}
+
+.list-group li {
+  text-align: center
+}
+
+.list-group-header {
+  border-bottom: solid 1px lightgray;
+}
+
+.list-group li:hover {
+  background-color: lightgray
+}
+
+.tooltip {
+  position: absolute;
+  opacity: 0;
+  background-color: lightyellow;
+  padding: 3px 12px 3px 12px;
+  text-align: center;
+  z-index: 0;
+  left: 35px;
+  transform: translateY(-40px);
+  color: #333333; 
+}
+
+.list-group li:hover .tooltip{
+  z-index: 99;
+  opacity: 1;
+  transition-delay:1s;
+  transition-duration: 0.5s;
+  -webkit-transition-duration: 0.5s;
+}
+
+li.list-splitter {
+  margin-top:  5px;
+  margin-bottom: 5px;
+}
+
+li hr {
+  height:1px;border:none;border-top:1px solid lightgray;
+}
+
+.pane.user {
+    flex: initial; /* reset the flex pattern inherit from pane and allow user-defined width for panes */
+    border-width: 0
+}
+
+.pane.main.left {
+    width: 60%;
+}
+.pane.main.right {
+    width: 40%;
+}
+
+.splitter.vertical {
+    width: 4px;
+    border: 1px solid #ddd;
+}
+
+.splitter.vertical:hover {
+    cursor: col-resize
+}
+
+.splitter.horizontal {
+    height: 5px;
+    border: 1px solid #ddd;
+}
+
+.splitter.horizontal:hover {
+    cursor: row-resize
+}
+
+.splitter:hover {
+    background: lightgreen;
+    transition-duration: 1s;
+}
+
+.pane-group.rows {
+    flex-flow: column;
+    border-width: 0
+}
+
+.container.annotated.source {
+    height: 180px;
+    /*flex: 3;*/
+}
+
+.container.annotated.target {
+    height: 210px;
+    /*flex: 4;*/
+}
+
+.container.machine-translation {
+    height: 210px;
+}
+
+.dialog {  
+    display: none;
+    position: absolute;
+    background: white;
+    box-shadow: 3px 3px 8px #888888;
+    border-width: 1px; 
+    border-color: gray; 
+    
+}
+
+.dialog.select-item {
+    margin-top: 12px;
+  
+    left: 45px;
+    width: 60%;
+    height: 95%;
+}
+
+.dialog.search-result {
+    bottom: 12px;
+    right: 20px;
+    width: 30%;
+    height: 50%;
+}
+
+.sentence-item.source {
+    display: none
+}
+
+.sentence-item.target {
+    display: none
+}
+
+.sentence-item.mt_res {
+    display: none
+}
+
+.dialog-header {
+    padding: 2px 10px 1px 10px;
+    text-align: center;
+    background: cadetblue;
+    color: white;
+    font-size: 11px;
+    /*display: flex;*/ /* set this will cause text-align become invalid */
+    height: 20px;
+}
+
+.article-container {
+    height: 95%;
+    overflow-y: auto; 
+}
+
+.s {
+    margin: 10px;
+}
+
+.s:hover {
+    background: lightblue;
+}
+
+.b {
+    font-weight: bold;
+}
+
+.i {
+    font-style: italic;
+}
+
+.u {
+    text-decoration: underline;
+}
+
+.strike {
+    text-decoration: line-through;
+}
+
+.sup {
+    vertical-align: super; 
+    font-size: 9px;
+}
+
+.sub {
+    vertical-align: sub; 
+    font-size: 9px;
+}

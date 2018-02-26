@@ -20,6 +20,7 @@
     "bootstrap": "^3.3.7",
     "adm-zip": "^0.4.7",
     "robotjs": "^0.4.7",
-    "htmlparser2": "^3.9.2"
+    "htmlparser2": "^3.9.2",
+    "mongodb": "^3.0.1"
   }
 }

@@ -1,4 +1,5 @@
 const d3 = require('d3')
+const {Identifier} = require('./../main/context.js')
 
 class Axis {
 	constructor(plot, orient) {
@@ -20,6 +21,21 @@ class Axis {
 		this.orientType = orient || Axis.BOTTOM
 
 		this.offset = null
+
+		// add identifier for current axis object
+		this.identifier = new Identifier(this.orientType)
+		if (this.identifier.name == Axis.BOTTOM) {
+			this.identifier.alias = ['x0']
+		} 
+		else if (this.identifier.name == Axis.TOP) {
+			this.identifier.alias = ['x1']
+		}
+		else if (this.identifier.name == Axis.LEFT) {
+			this.identifier.alias = ['y0']
+		}
+		else if (this.identifier.name == Axis.RIGHT) {
+			this.identifier.alias = ['y1']
+		}
 	}
 
 	/** axis type - linear scale */
@@ -94,7 +110,7 @@ class Axis {
 			if (this.orientType == Axis.BOTTOM || this.orientType == Axis.TOP) {
 				this.range = this.reverse ? [width, 0] : [0, width]
 			} else {
-				this.range = this.reverse ? [height, 0] : [0, height] 
+				this.range = this.reverse ? [0, height] : [height, 0]
 			}
 		}
 
@@ -158,10 +174,10 @@ class Curve {
 		this.showDots = true
 		this.showLine = true
 
-		this.dotsColor = 'blue'
+		this.dotsColor = "#"+("00000"+((Math.random()*16777215+0.5)>>0).toString(16)).slice(-6)
 		this.dotsSize = '2.5'
 		this.dotsOpacity = '0.7'
-		this.lineColor = 'black'
+		this.lineColor = this.dotsColor
 		this.lineWidth = '1'
 		this.lineOpacity = '1'
 
@@ -213,6 +229,7 @@ class Plot {
 
         this.svg = null
     	this.pad = null;
+		this.frame = null;
 
     	this.curves = []
 
@@ -235,7 +252,8 @@ class Plot {
         return {height: this.height, width: this.width}
     }
 
-    size(height, width) {
+    set size(size) {
+		let {height,width} = size
         this.height = height > 200 ? height : 200
         this.width = width > 200 ? width : 200
     }
@@ -244,7 +262,8 @@ class Plot {
         return {top: this.top, bottom: this.bottom, left: this.left, right: this.right}
     }
 
-    margin(top, bottom, left, right) {
+    set margin(margin) {
+		let { top, bottom, left, right } = margin
         this.top = top
         this.bottom = bottom
         this.left = left
@@ -301,6 +320,16 @@ class Plot {
 
 	    svg.attr("width", this.outerSize.width)
 	        .attr("height", this.outerSize.height)
+
+		this.frame = svg.append("rect")
+			.attr("x", 1)
+			.attr("y", 1)
+		    .attr("width", this.outerSize.width-1)
+		    .attr("height", this.outerSize.height-1)
+		    .style("fill", "white")
+		    .style("opacity", "0.3")
+			//.style("stroke", "black")
+			//.style("stroke-width", "1")
 
 		var defs = svg.append("defs"); 
 
